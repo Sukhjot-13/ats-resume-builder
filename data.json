@@ -1,0 +1,151 @@
+{
+  "profile": {
+    "full_name": "SUKHJOT SINGH",
+    "email": "sukhjotsingh441@gmail.com",
+    "headline": "Versatile and dependable professional with experience in customer service, team leadership, mobile app development, and security.",
+    "generic_summary": "Proven ability to lead teams and ensure smooth operations as a Shift Supervisor at Burger King. Gained hands-on technical experience developing and deploying mobile applications during an internship at IHP. Skilled in maintaining safety and handling emergencies through roles as a Mobile/Security Guard. Strong communicator, quick problem-solver, and team player."
+  },
+  "work_experience": [
+    {
+      "id": "we1",
+      "job_title": "Shift Supervisor",
+      "company": "Burger King, Barrie",
+      "start_date": "May 2023",
+      "end_date": "Present",
+      "is_current": true,
+      "responsibilities": [
+        "Developed strong customer service skills through direct interactions with customers, ensuring a positive dining experience and handling transactions efficiently.",
+        "Over see crew members during shifts, ensuring tasks are completed efficiently and following Burger King standards.",
+        "Ensure excellent customer service is provided, handle customer complaints, and resolve issues promptly and professionally.",
+        "Oversee cash registers, balance cash drawers and make sure all transactions are accurately recorded and reported.",
+        "Foster a positive work environment, encourage team work and provide feedback and recognition to staff."
+      ]
+    },
+    {
+      "id": "we2",
+      "job_title": "Mobile Application Developer (Intern)",
+      "company": "IHP (Interact Health Pro),Toronto",
+      "start_date": "April 2024",
+      "end_date": "December 2024",
+      "is_current": false,
+      "responsibilities": [
+        "Designed, developed, implemented and tested IT applications, both as a solo developer and in collaboration with a team.",
+        "Collaborated closely with the design team to translate UI/UX designs into functional mobile applications. Developed both front-end and back-end components, developed API’s, ensuring seamless integration and optimal performance.",
+        "Demonstrated strong project management skills.",
+        "Oversaw the entire mobile development lifecycle, from conceptualization to deployment.",
+        "Expertise in problem-solving, optimizing and debugging complex code as well as writing technical documentation.",
+        "Defined team goals, objectives and priorities. Assigned tasks and monitored progress to ensure project deadlines were met.",
+        "Troubleshooted and resolved programmatic issues and documented solutions."
+      ]
+    },
+    {
+      "id": "we3",
+      "job_title": "Mobile/Security Guard",
+      "company": "G Force Security, iGuard360 and Jayo security, Barrie",
+      "start_date": "",
+      "end_date": "",
+      "is_current": false,
+      "responsibilities": [
+        "Monitored and maintained a secure environment outside banking or clubs premises, conducting regular patrols and ensuring the safety of both customers and staff.",
+        "Conducted vehicle patrols using personal and company cars to maintain safety across designated areas.",
+        "Managed emergency security calls for commercial establishments, banks and schools during both day and night shifts, ensuring prompt and effective actions."
+      ]
+    },
+    {
+      "id": "we4",
+      "job_title": "Patient Transfer Attendant",
+      "company": "Encore, Toronto",
+      "start_date": "Jan 2024",
+      "end_date": "May 2024",
+      "is_current": false,
+      "responsibilities": [
+        "Communicated effectively with health care providers patients and families to facilitate smooth transfers.",
+        "Coordinated patient transfers between facilities ensuring timely and safe transportation.",
+        "Adhered to strict patient confidentiality guidelines."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "edu1",
+      "institution": "Georgian College, Barrie",
+      "degree": "Diploma Computer Programming",
+      "field_of_study": "Computer Programming",
+      "graduation_date": "Expected Graduation 2025"
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill1",
+      "skill_name": "Leadership and training",
+      "category": "Professional"
+    },
+    { "id": "skill2", "skill_name": "Creativity", "category": "Professional" },
+    { "id": "skill3", "skill_name": "Management", "category": "Professional" },
+    {
+      "id": "skill4",
+      "skill_name": "Problem-Solving",
+      "category": "Professional"
+    },
+    {
+      "id": "skill5",
+      "skill_name": "Attention to Detail",
+      "category": "Professional"
+    },
+    {
+      "id": "skill6",
+      "skill_name": "Responsiveness",
+      "category": "Professional"
+    },
+    { "id": "skill7", "skill_name": "Next.Js", "category": "Technical" },
+    { "id": "skill8", "skill_name": "React", "category": "Technical" },
+    { "id": "skill9", "skill_name": "NodeJS", "category": "Technical" },
+    { "id": "skill10", "skill_name": "MongoDB", "category": "Technical" },
+    { "id": "skill11", "skill_name": "MySQL", "category": "Technical" },
+    {
+      "id": "skill12",
+      "skill_name": "Web Applications",
+      "category": "Technical"
+    },
+    {
+      "id": "skill13",
+      "skill_name": "HTML, CSS,JavaScript",
+      "category": "Technical"
+    },
+    { "id": "skill14", "skill_name": "GitHub", "category": "Technical" },
+    {
+      "id": "skill15",
+      "skill_name": "Object-Oriented Design",
+      "category": "Technical"
+    },
+    { "id": "skill16", "skill_name": "Typescript", "category": "Technical" },
+    { "id": "skill17", "skill_name": "Python", "category": "Technical" }
+  ],
+  "certifications": [
+    { "id": "cert1", "name": "Security Guard License" },
+    { "id": "cert2", "name": "First Aid Certification" },
+    { "id": "cert3", "name": "ServSafe Certificate" },
+    { "id": "cert4", "name": "First Responder (Red Cross)" }
+  ],
+  "projects": [
+    {
+      "id": "proj1",
+      "name": "URL Shortener",
+      "technologies": "Next.js, React, Tailwind CSS, Node.js, MongoDB",
+      "description": "URL Shortener is a web app built with Next.js, React, Tailwind CSS, Node. js, and MongoDB. It allows users to create an account, shorten long URLs, and share them. Key features include fully responsive design, custom user authentication, real-time link count tracking and link expiry."
+    },
+    {
+      "id": "proj2",
+      "name": "E-Commerce Website and Mobile App",
+      "technologies": "React Native, Expo, Firebase, Stripe & tailwind CSS, Node.js, MongoDB",
+      "description": "E-commerce website is a web app built with React and JavaScript libraries, Tailwind CSS, Node.js ,and MongoDB. It allows users to create an account, add products to the cart and checkout. Key features include a responsive design, user authentication using Firebase, payment gateway integration with Stripe, real-time cart count tracking, and real- time checkout."
+    },
+    {
+      "id": "proj3",
+      "name": "Retro Website",
+      "technologies": "HTML, CSS, JavaScript",
+      "description": "Retro website for Ford mustang 1980. This project was built using HTML, CSS & Java Script. The website is responsive and has small animations."
+    }
+  ],
+  "languages": ["English", "Hindi", "Punjabi"]
+}

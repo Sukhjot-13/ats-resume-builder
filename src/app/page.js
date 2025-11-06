@@ -1,65 +1,278 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [parsing, setParsing] = useState(false);
+  const [jobDescription, setJobDescription] = useState('');
+  const [tailoredResume, setTailoredResume] = useState(null);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch('/api/profile');
+        const data = await response.json();
+        setProfile(data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setParsing(true);
+    const formData = new FormData();
+    formData.append('resumeFile', file);
+
+    try {
+      const response = await fetch('/api/parse-resume', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const parsedData = await response.json();
+        setProfile(parsedData);
+        await fetch('/api/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(parsedData),
+        });
+      } else {
+        console.error('Error parsing resume:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+    setParsing(false);
+  };
+
+  const handleGenerateResume = async () => {
+    if (!jobDescription) return;
+
+    setGenerating(true);
+    try {
+      const response = await fetch('/api/generate-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ profile, jobDescription }),
+      });
+
+      if (response.ok) {
+        const tailoredData = await response.json();
+        setTailoredResume(tailoredData);
+      } else {
+        console.error('Error generating resume:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error generating resume:', error);
+    }
+    setGenerating(false);
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!tailoredResume) return;
+
+    try {
+      const response = await fetch('/api/render-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ resumeData: tailoredResume }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'resume.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        console.error('Error downloading PDF:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+      <div className="container mx-auto">
+        <h1 className="text-4xl font-bold mb-8 text-center">ATS-Friendly Resume Builder</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left Column: Upload, Job Description, and Edit */}
+          <div className="space-y-8">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-4">Upload Your Resume</h2>
+              <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                <input type="file" accept=".pdf,.docx" onChange={handleFileUpload} className="hidden" id="resume-upload" />
+                <label htmlFor="resume-upload" className="cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                  {parsing ? 'Parsing...' : 'Select a file'}
+                </label>
+                <p className="mt-2 text-sm text-gray-400">PDF or DOCX</p>
+              </div>
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-4">Job Description</h2>
+              <textarea
+                className="w-full h-40 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Paste the job description here..."
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              ></textarea>
+              <button
+                onClick={handleGenerateResume}
+                className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-500"
+                disabled={generating}
+              >
+                {generating ? 'Generating...' : 'Generate Tailored Resume'}
+              </button>
+            </div>
+          </div>
+
+          {/* Right Column: Display Profile and Tailored Resume */}
+          <div className="space-y-8">
+            {profile && (
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold mb-4">Your Profile</h2>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold">{profile.profile.full_name}</h3>
+                    <p className="text-gray-400">{profile.profile.email}</p>
+                    <p className="text-gray-400">{profile.profile.headline}</p>
+                    <p className="mt-4 text-gray-300">{profile.profile.generic_summary}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold">Work Experience</h4>
+                    <ul className="mt-2 space-y-4">
+                      {profile.work_experience.map((exp) => (
+                        <li key={exp.id}>
+                          <p className="font-bold">{exp.job_title} at {exp.company}</p>
+                          <p className="text-sm text-gray-400">{exp.start_date} - {exp.end_date}</p>
+                          <ul className="list-disc list-inside mt-2 text-gray-300">
+                            {exp.responsibilities.map((resp, i) => (
+                              <li key={i}>{resp}</li>
+                            ))}
+                          </ul>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold">Education</h4>
+                    <ul className="mt-2 space-y-2">
+                      {profile.education.map((edu) => (
+                        <li key={edu.id}>
+                          <p className="font-bold">{edu.institution}</p>
+                          <p className="text-gray-400">{edu.degree} in {edu.field_of_study}</p>
+                          <p className="text-sm text-gray-400">Graduated: {edu.graduation_date}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold">Skills</h4>
+                    <ul className="flex flex-wrap gap-2 mt-2">
+                      {profile.skills.map((skill) => (
+                        <li key={skill.id} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                          {skill.skill_name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {tailoredResume && (
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-semibold">Tailored Resume</h2>
+                  <button
+                    onClick={handleDownloadPdf}
+                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors"
+                  >
+                    Download PDF
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold">{tailoredResume.profile.full_name}</h3>
+                    <p className="text-gray-400">{tailoredResume.profile.email}</p>
+                    <p className="text-gray-400">{tailoredResume.profile.headline}</p>
+                    <p className="mt-4 text-gray-300">{tailoredResume.profile.generic_summary}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold">Work Experience</h4>
+                    <ul className="mt-2 space-y-4">
+                      {tailoredResume.work_experience.map((exp) => (
+                        <li key={exp.id}>
+                          <p className="font-bold">{exp.job_title} at {exp.company}</p>
+                          <p className="text-sm text-gray-400">{exp.start_date} - {exp.end_date}</p>
+                          <ul className="list-disc list-inside mt-2 text-gray-300">
+                            {exp.responsibilities.map((resp, i) => (
+                              <li key={i}>{resp}</li>
+                            ))}
+                          </ul>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold">Education</h4>
+                    <ul className="mt-2 space-y-2">
+                      {tailoredResume.education.map((edu) => (
+                        <li key={edu.id}>
+                          <p className="font-bold">{edu.institution}</p>
+                          <p className="text-gray-400">{edu.degree} in {edu.field_of_study}</p>
+                          <p className="text-sm text-gray-400">Graduated: {edu.graduation_date}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold">Skills</h4>
+                    <ul className="flex flex-wrap gap-2 mt-2">
+                      {tailoredResume.skills.map((skill) => (
+                        <li key={skill.id} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                          {skill.skill_name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
