@@ -32,7 +32,7 @@ export async function renderPdf(resumeData, template) {
   html = html.replace(/{profile.email}/g, resumeData.profile.email || '');
   html = html.replace(/{profile.phone}/g, resumeData.profile.phone || '');
   html = html.replace(/{profile.location}/g, resumeData.profile.location || '');
-  html = html.replace(/{profile.website}/g, resumeData.profile.website ? `| ${resumeData.profile.website}` : '');
+  html = html.replace(/{profile.website}/g, resumeData.profile.website ? `| <a href="${resumeData.profile.website}" target="_blank">${resumeData.profile.website}</a>` : '');
   html = html.replace(/{profile.generic_summary}/g, resumeData.profile.generic_summary || '');
 
   // Replace skills placeholder
@@ -40,7 +40,7 @@ export async function renderPdf(resumeData, template) {
     const skills = resumeData.skills.map(skill => skill.skill_name).join(', ');
     html = html.replace(/{skills.list_of_skills}/g, skills);
   } else {
-    html = html.replace(/<div class="section skills">[\s\S]*?</div>/, '');
+    html = html.replace(/<div class="section skills">[\s\S]*?<\/div>/, '');
   }
 
   // Replace education placeholder
