@@ -2,11 +2,33 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-
+import userData from "../models/user-data";
 
 const PDFViewer = dynamic(() => import("../components/PDFViewer"), {
   ssr: false,
 });
+
+const transformData = (parsedData) => {
+  const transformed = { ...userData };
+
+  if (parsedData.profile) {
+    transformed.profile = { ...transformed.profile, ...parsedData.profile };
+  }
+  if (parsedData.work_experience) {
+    transformed.work_experience = parsedData.work_experience;
+  }
+  if (parsedData.education) {
+    transformed.education = parsedData.education;
+  }
+  if (parsedData.skills) {
+    transformed.skills = parsedData.skills;
+  }
+  if (parsedData.additional_info) {
+    transformed.additional_info = { ...transformed.additional_info, ...parsedData.additional_info };
+  }
+
+  return transformed;
+};
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
@@ -16,7 +38,7 @@ export default function Home() {
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [tailoredResume, setTailoredResume] = useState(null);
   const [generating, setGenerating] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState("Classic");
+  const [selectedTemplate, setSelectedTemplate] = useState("test.html");
   const [pdfPreview, setPdfPreview] = useState(null);
 
   useEffect(() => {
@@ -50,14 +72,15 @@ export default function Home() {
 
       if (response.ok) {
         const parsedData = await response.json();
-        console.log("Parsed data:", parsedData);
-        setProfile(parsedData);
+        const transformedData = transformData(parsedData);
+        console.log("Parsed data:", transformedData);
+        setProfile(transformedData);
         await fetch("/api/profile", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(parsedData),
+          body: JSON.stringify(transformedData),
         });
       } else {
         const errorText = await response.text();
@@ -69,6 +92,40 @@ export default function Home() {
       alert(`Error uploading file: ${error.message}`);
     }
     setParsing(false);
+  };
+
+  const handleDownloadParsedResume = async () => {
+    if (!profile) return;
+
+    try {
+      const response = await fetch("/api/render-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeData: profile,
+          template: "test.html",
+        }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        setPdfPreview(url);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "resume.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        console.error("Error downloading PDF:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
   };
 
   const handleGenerateResume = async () => {
@@ -86,7 +143,8 @@ export default function Home() {
 
       if (response.ok) {
         const tailoredData = await response.json();
-        setTailoredResume(tailoredData);
+        const transformedData = transformData(tailoredData);
+        setTailoredResume(transformedData);
       } else {
         console.error("Error generating resume:", await response.text());
       }
@@ -96,7 +154,7 @@ export default function Home() {
     setGenerating(false);
   };
 
-  const handleGenerateAndDownloadPdf = async () => {
+  const handleDownloadTailoredResume = async () => {
     if (!tailoredResume) return;
 
     try {
@@ -219,13 +277,24 @@ export default function Home() {
           <div className="space-y-8">
             {profile && profile.profile && (
               <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-semibold mb-4">Your Profile</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-semibold">Your Profile</h2>
+                  <button
+                    onClick={handleDownloadParsedResume}
+                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors"
+                  >
+                    Download Parsed Resume
+                  </button>
+                </div>
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-bold">
                       {profile.profile.full_name}
                     </h3>
                     <p className="text-gray-400">{profile.profile.email}</p>
+                    <p className="text-gray-400">{profile.profile.phone}</p>
+                    <p className="text-gray-400">{profile.profile.location}</p>
+                    <p className="text-gray-400">{profile.profile.website}</p>
                     <p className="text-gray-400">{profile.profile.headline}</p>
                     <p className="mt-4 text-gray-300">
                       {profile.profile.generic_summary}
@@ -261,7 +330,10 @@ export default function Home() {
                             {edu.degree} in {edu.field_of_study}
                           </p>
                           <p className="text-sm text-gray-400">
-                            Graduated: {edu.graduation_date}
+                            {edu.start_date} - {edu.end_date}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            {edu.relevant_coursework}
                           </p>
                         </li>
                       ))}
@@ -280,6 +352,16 @@ export default function Home() {
                       ))}
                     </ul>
                   </div>
+                  {profile.additional_info && (
+                    <div>
+                      <h4 className="text-lg font-semibold">Additional Information</h4>
+                      <ul className="mt-2 space-y-2">
+                        <li><span className="font-bold">Languages:</span> {profile.additional_info.languages.join(", ")}</li>
+                        <li><span className="font-bold">Certifications:</span> {profile.additional_info.certifications.join(", ")}</li>
+                        <li><span className="font-bold">Awards/Activities:</span> {profile.additional_info.awards_activities.join(", ")}</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -289,7 +371,7 @@ export default function Home() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-semibold">Tailored Resume</h2>
                   <button
-                    onClick={handleGenerateAndDownloadPdf}
+                    onClick={handleDownloadTailoredResume}
                     className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors"
                   >
                     Download PDF
@@ -300,12 +382,11 @@ export default function Home() {
                     <h3 className="text-xl font-bold">
                       {tailoredResume.profile.full_name}
                     </h3>
-                    <p className="text-gray-400">
-                      {tailoredResume.profile.email}
-                    </p>
-                    <p className="text-gray-400">
-                      {tailoredResume.profile.headline}
-                    </p>
+                    <p className="text-gray-400">{tailoredResume.profile.email}</p>
+                    <p className="text-gray-400">{tailoredResume.profile.phone}</p>
+                    <p className="text-gray-400">{tailoredResume.profile.location}</p>
+                    <p className="text-gray-400">{tailoredResume.profile.website}</p>
+                    <p className="text-gray-400">{tailoredResume.profile.headline}</p>
                     <p className="mt-4 text-gray-300">
                       {tailoredResume.profile.generic_summary}
                     </p>
@@ -340,7 +421,10 @@ export default function Home() {
                             {edu.degree} in {edu.field_of_study}
                           </p>
                           <p className="text-sm text-gray-400">
-                            Graduated: {edu.graduation_date}
+                            {edu.start_date} - {edu.end_date}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            {edu.relevant_coursework}
                           </p>
                         </li>
                       ))}
@@ -359,6 +443,16 @@ export default function Home() {
                       ))}
                     </ul>
                   </div>
+                  {tailoredResume.additional_info && (
+                    <div>
+                      <h4 className="text-lg font-semibold">Additional Information</h4>
+                      <ul className="mt-2 space-y-2">
+                        <li><span className="font-bold">Languages:</span> {tailoredResume.additional_info.languages.join(", ")}</li>
+                        <li><span className="font-bold">Certifications:</span> {tailoredResume.additional_info.certifications.join(", ")}</li>
+                        <li><span className="font-bold">Awards/Activities:</span> {tailoredResume.additional_info.awards_activities.join(", ")}</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

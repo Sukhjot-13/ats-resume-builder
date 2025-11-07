@@ -21,6 +21,44 @@ export async function POST(request) {
     2. For each 'work_experience' item, rewrite the 'responsibilities' to be 3-5 bullet points that showcase achievements and align with the job description.
     3. Select the most relevant skills from the user's 'skills' list and include them in the 'skills' array.
     4. Ensure the output is a valid JSON object with the same schema as the user's profile data.
+    5. The output JSON schema should be as follows:
+    {
+      "profile": {
+        "full_name": "...",
+        "email": "...",
+        "phone": "...",
+        "location": "...",
+        "website": "...",
+        "headline": "...",
+        "generic_summary": "..."
+      },
+      "work_experience": [
+        {
+          "job_title": "...",
+          "company": "...",
+          "start_date": "YYYY-MM-DD",
+          "end_date": "YYYY-MM-DD",
+          "is_current": false,
+          "responsibilities": ["...", "..."]
+        }
+      ],
+      "education": [
+        {
+          "institution": "...",
+          "degree": "...",
+          "field_of_study": "...",
+          "start_date": "YYYY-MM-DD",
+          "end_date": "YYYY-MM-DD",
+          "relevant_coursework": "..."
+        }
+      ],
+      "skills": [],
+      "additional_info": {
+        "languages": [],
+        "certifications": [],
+        "awards_activities": []
+      }
+    }
   `;
 
   if (specialInstructions) {

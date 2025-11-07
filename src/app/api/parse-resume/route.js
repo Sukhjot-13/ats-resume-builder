@@ -57,6 +57,9 @@ export async function POST(request) {
       "profile": {
         "full_name": "...",
         "email": "...",
+        "phone": "...",
+        "location": "...",
+        "website": "...",
         "headline": "...",
         "generic_summary": "..."
       },
@@ -75,12 +78,17 @@ export async function POST(request) {
           "institution": "...",
           "degree": "...",
           "field_of_study": "...",
-          "graduation_date": "YYYY-MM-DD"
+          "start_date": "YYYY-MM-DD",
+          "end_date": "YYYY-MM-DD",
+          "relevant_coursework": "..."
         }
       ],
-      "skills": [
-        { "skill_name": "...", "category": "..." }
-      ]
+      "skills": [],
+      "additional_info": {
+        "languages": [],
+        "certifications": [],
+        "awards_activities": []
+      }
     }
   `;
 
