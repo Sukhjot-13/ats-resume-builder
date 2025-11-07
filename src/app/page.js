@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import ReactDOMServer from "react-dom/server";
-import TailwindModern from "../components/resume-templates/tailwind-templates/TailwindModern";
+
 
 const PDFViewer = dynamic(() => import("../components/PDFViewer"), {
   ssr: false,
@@ -101,35 +100,16 @@ export default function Home() {
     if (!tailoredResume) return;
 
     try {
-      let response;
-      if (selectedTemplate.endsWith(".js")) {
-        // Dynamically import the component based on selectedTemplate
-        const { default: SelectedTailwindTemplate } = await import(
-          `../components/resume-templates/tailwind-templates/${selectedTemplate}`
-        );
-        const componentHtml = ReactDOMServer.renderToStaticMarkup(
-          <SelectedTailwindTemplate data={tailoredResume} />
-        );
-
-        response = await fetch("/api/render-tailwind-pdf", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ html: componentHtml }),
-        });
-      } else {
-        response = await fetch("/api/render-pdf", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            resumeData: tailoredResume,
-            template: selectedTemplate,
-          }),
-        });
-      }
+      const response = await fetch("/api/render-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeData: tailoredResume,
+          template: selectedTemplate,
+        }),
+      });
 
       if (response.ok) {
         const blob = await response.blob();
@@ -228,13 +208,7 @@ export default function Home() {
                 onChange={(e) => setSelectedTemplate(e.target.value)}
                 className="w-full bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="Classic">Classic</option>
-                <option value="Modern">Modern</option>
-                <option value="Creative">Creative</option>
-                <option value="AdviceWithErin1">AdviceWithErin1</option>
-                <option value="AdviceWithErin2">AdviceWithErin2</option>
                 <option value="Simple.html">Simple</option>
-                <option value="TailwindModern.js">Tailwind Modern</option>
                 <option value="test.html">Test</option>
                 <option value="test-filled.html">Test Filled</option>
               </select>

@@ -2,13 +2,13 @@
   "profile": {
     "full_name": "SUKHJOT SINGH",
     "email": "sukhjotsingh441@gmail.com",
-    "headline": "Versatile and dependable professional with experience in customer service, team leadership, mobile app development, and security.",
-    "generic_summary": "Proven ability to lead teams and ensure smooth operations as a Shift Supervisor at Burger King. Gained hands-on technical experience developing and deploying mobile applications during an internship at IHP. Skilled in maintaining safety and handling emergencies through roles as a Mobile/Security Guard. Strong communicator, quick problem-solver, and team player."
+    "headline": "Software Engineer",
+    "generic_summary": "Adept Web Developer and Team Lead at IHP, proficient in full-stack and mobile development including MERNS tack and data base development. Excelled in leadership, ensuring seamless project execution and fostering collaboration. Demonstrated exceptional problem-solving skills, significantly enhancing application performance and user experience."
   },
   "work_experience": [
     {
       "job_title": "Shift Supervisor",
-      "company": "Burger King",
+      "company": "Burger King, Barrie",
       "start_date": "2023-05-01",
       "end_date": "Present",
       "is_current": true,
@@ -22,9 +22,9 @@
     },
     {
       "job_title": "Mobile Application Developer (Intern)",
-      "company": "IHP (Interact Health Pro)",
+      "company": "IHP (Interact Health Pro), Toronto",
       "start_date": "2024-04-01",
-      "end_date": "2024-12-01",
+      "end_date": "2024-12-31",
       "is_current": false,
       "responsibilities": [
         "Designed, developed, implemented and tested IT applications, both as a solo developer and in collaboration with a team.",
@@ -38,7 +38,7 @@
     },
     {
       "job_title": "Mobile/Security Guard",
-      "company": "G Force Security, iGuard360 and Jayo security",
+      "company": "G Force Security, iGuard360 and Jayo security. Barrie",
       "start_date": null,
       "end_date": null,
       "is_current": false,
@@ -50,9 +50,9 @@
     },
     {
       "job_title": "Patient Transfer Attendant",
-      "company": "Encore",
+      "company": "Encore, Toronto",
       "start_date": "2024-01-01",
-      "end_date": "2024-05-01",
+      "end_date": "2024-05-31",
       "is_current": false,
       "responsibilities": [
         "Communicated effectively with health care providers patients and families to facilitate smooth transfers.",
@@ -63,10 +63,10 @@
   ],
   "education": [
     {
-      "institution": "Georgian College",
+      "institution": "Georgian College, Barrie",
       "degree": "Diploma Computer Programming Candidate",
       "field_of_study": "Computer Programming",
-      "graduation_date": "2025 (Expected)"
+      "graduation_date": "2025"
     }
   ],
   "skills": [
