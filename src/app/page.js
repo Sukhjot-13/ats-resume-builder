@@ -7,6 +7,7 @@ import JobDescriptionInput from "../components/home/JobDescriptionInput";
 import SpecialInstructionsInput from "../components/home/SpecialInstructionsInput";
 import TemplateSelector from "../components/home/TemplateSelector";
 import ResumePreview from "../components/preview/ResumePreview";
+import DiffViewer from "../components/diff/DiffViewer";
 
 const transformData = (parsedData) => {
   const transformed = { ...userData };
@@ -52,6 +53,7 @@ export default function Home() {
   const [tailoredResume, setTailoredResume] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("test.html");
+  const [showDiff, setShowDiff] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -177,11 +179,28 @@ export default function Home() {
 
           {/* Right Column: Display Profile and Tailored Resume */}
           <div className="space-y-8">
+            {tailoredResume && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowDiff(!showDiff)}
+                  className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  {showDiff ? "Show Resume" : "Show Changes"}
+                </button>
+              </div>
+            )}
             {tailoredResume ? (
-              <ResumePreview
-                tailoredResume={tailoredResume}
-                selectedTemplate={selectedTemplate}
-              />
+              showDiff ? (
+                <DiffViewer
+                  originalText={JSON.stringify(profile, null, 2)}
+                  newText={JSON.stringify(tailoredResume, null, 2)}
+                />
+              ) : (
+                <ResumePreview
+                  tailoredResume={tailoredResume}
+                  selectedTemplate={selectedTemplate}
+                />
+              )
             ) : (
               profile &&
               profile.profile && (
