@@ -1,8 +1,10 @@
 
 import { NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
+import crypto from 'crypto';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/user';
+import RefreshToken from '@/models/refreshToken';
 
 export async function POST(req) {
   const { email, otp } = await req.json();
@@ -16,25 +18,15 @@ export async function POST(req) {
   try {
     const user = await User.findOne({ email });
 
-    if (!user) {
+    if (!user || user.otp !== otp || Date.now() > user.otpExpires) {
       return NextResponse.json({ error: 'Invalid or expired OTP' }, { status: 400 });
     }
 
-    if (user.otp !== otp || Date.now() > user.otpExpires) {
-      return NextResponse.json({ error: 'Invalid or expired OTP' }, { status: 400 });
-    }
-
-    user.otp = undefined;
-    user.otpExpires = undefined;
-    await user.save();
-
-    let newUser = false;
-    if (!user.name) {
-      newUser = true;
-    }
+    let newUser = !user.name;
 
     const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
     const refreshSecret = new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET);
+    const refreshTokenExpirationSeconds = 15 * 24 * 60 * 60; // 15 days in seconds
 
     const accessToken = await new SignJWT({ userId: user._id.toString() })
       .setProtectedHeader({ alg: 'HS256' })
@@ -46,7 +38,39 @@ export async function POST(req) {
       .setExpirationTime('15d')
       .sign(refreshSecret);
 
-    return NextResponse.json({ accessToken, refreshToken, newUser });
+    // Hash the refresh token
+    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+    // Save the new refresh token to its own collection
+    await RefreshToken.create({
+      userId: user._id,
+      token: hashedRefreshToken,
+      expiresAt: new Date(Date.now() + refreshTokenExpirationSeconds * 1000),
+      ip: req.headers.get('x-forwarded-for') || req.ip,
+      userAgent: req.headers.get('user-agent'),
+    });
+
+    // Remove OTP fields from user
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    const response = NextResponse.json({ newUser });
+
+    // Set cookies
+    response.cookies.set('accessToken', accessToken, {
+      path: '/',
+      maxAge: 15 * 60, // 15 minutes
+      secure: process.env.NODE_ENV === 'production',
+    });
+    response.cookies.set('refreshToken', refreshToken, {
+      path: '/',
+      maxAge: refreshTokenExpirationSeconds,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

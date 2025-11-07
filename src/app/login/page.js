@@ -14,19 +14,8 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('useEffect in LoginPage triggered');
-    const getCookie = (name) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    };
-
-    const accessToken = getCookie('accessToken');
-    console.log('accessToken from cookie in useEffect:', accessToken);
-    if (accessToken) {
-      console.log('Redirecting to dashboard from useEffect...');
-      router.push('/dashboard');
-    }
+    // This effect will run on mount and redirect if the middleware logic
+    // determines the user is already logged in.
   }, []);
 
   const handleSendOtp = async (e) => {
@@ -72,12 +61,9 @@ export default function LoginPage() {
       });
 
       if (response.ok) {
-        const { accessToken, refreshToken, newUser } = await response.json();
+        const { newUser } = await response.json();
         console.log('OTP verified successfully');
-        // Store tokens in cookies
-        document.cookie = `accessToken=${accessToken}; path=/; max-age=${15 * 60}`; // 15 minutes
-        document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${15 * 24 * 60 * 60}`; // 15 days
-
+        
         if (newUser) {
           console.log('New user, redirecting to onboarding...');
           router.push('/onboarding');
