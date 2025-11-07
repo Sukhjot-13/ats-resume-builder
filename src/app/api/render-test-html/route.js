@@ -1,11 +1,12 @@
 
 import { NextResponse } from 'next/server';
 import { renderPdf } from '../../../services/pdfRenderService';
+import fs from 'fs/promises';
 
-export async function POST(request) {
+export async function GET(request) {
   try {
-    const { resumeData, template } = await request.json();
-    const html = await renderPdf(resumeData, template, true);
+    const resumeData = JSON.parse(await fs.readFile('data.json', 'utf-8'));
+    const html = await renderPdf(resumeData, 'Simple.html', true);
 
     return new NextResponse(html, {
       headers: {

@@ -51,9 +51,7 @@ export default function Home() {
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [tailoredResume, setTailoredResume] = useState(null);
   const [generating, setGenerating] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState("test.html");
-  const [downloadingParsed, setDownloadingParsed] = useState(false);
-  const [downloadingTailored, setDownloadingTailored] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("Simple.html");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -109,41 +107,6 @@ export default function Home() {
     setParsing(false);
   };
 
-  const handleDownloadParsedResume = async () => {
-    if (!profile) return;
-
-    setDownloadingParsed(true);
-    try {
-      const response = await fetch("/api/render-pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          resumeData: profile,
-          template: "test.html",
-        }),
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "resume.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      } else {
-        console.error("Error downloading PDF:", await response.text());
-      }
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-    }
-    setDownloadingParsed(false);
-  };
-
   const handleGenerateResume = async () => {
     if (!jobDescription) return;
 
@@ -168,41 +131,6 @@ export default function Home() {
       console.error("Error generating resume:", error);
     }
     setGenerating(false);
-  };
-
-  const handleDownloadTailoredResume = async () => {
-    if (!tailoredResume) return;
-
-    setDownloadingTailored(true);
-    try {
-      const response = await fetch("/api/render-pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          resumeData: tailoredResume,
-          template: selectedTemplate,
-        }),
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "resume.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      } else {
-        console.error("Error downloading PDF:", await response.text());
-      }
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-    }
-    setDownloadingTailored(false);
   };
 
   if (loading) {
@@ -259,7 +187,7 @@ export default function Home() {
               profile.profile && (
                 <ResumePreview
                   tailoredResume={profile}
-                  selectedTemplate={"test.html"}
+                  selectedTemplate={selectedTemplate}
                 />
               )
             )}

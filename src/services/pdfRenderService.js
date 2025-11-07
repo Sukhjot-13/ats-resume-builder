@@ -38,7 +38,12 @@ export async function renderPdf(resumeData, template, returnHtml = false) {
 
   // Replace skills placeholder
   if (resumeData.skills && resumeData.skills.length > 0) {
-    const skills = resumeData.skills.map(skill => skill.skill_name).join(', ');
+    let skills;
+    if (template === 'test.html') {
+      skills = resumeData.skills.map(skill => skill.skill_name).join(', ');
+    } else {
+      skills = resumeData.skills.map(skill => `<li>${skill.skill_name}</li>`).join('');
+    }
     html = html.replace(/{skills.list_of_skills}/g, skills);
   } else {
     html = html.replace(/<div class="section skills">[\s\S]*?<\/div>/, '');
@@ -53,15 +58,14 @@ export async function renderPdf(resumeData, template, returnHtml = false) {
       const dateRange = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
       educationHtml += `
-        <div class="company-date">
-          <div><span class="bold">${edu.degree || ''}, ${edu.field_of_study || ''}</span></div>
-          <div><em class="date">${dateRange}</em></div>
+        <div class="education-item">
+          <div class="company-date">
+            <div><span class="bold">${edu.degree || ''}, ${edu.field_of_study || ''}</span></div>
+            <div><em class="date">${dateRange}</em></div>
+          </div>
+          <p>${edu.institution || ''}</p>
         </div>
-        <p>${edu.institution || ''}</p>
       `;
-      if (edu.relevant_coursework) {
-        educationHtml += `<ul class="sub-list"><li>${edu.relevant_coursework}</li></ul>`;
-      }
     }
   }
   html = html.replace('<!-- education -->', educationHtml);
@@ -75,37 +79,19 @@ export async function renderPdf(resumeData, template, returnHtml = false) {
       const dateRange = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
       workExperienceHtml += `
-        <div class="company-date">
-          <div class="position">${exp.job_title || ''}, ${exp.company || ''}</div>
-          <div><em class="date">${dateRange}</em></div>
+        <div class="work-experience-item">
+          <div class="company-date">
+            <div class="position">${exp.job_title || ''}, ${exp.company || ''}</div>
+            <div><em class="date">${dateRange}</em></div>
+          </div>
+          <ul>
+            ${exp.responsibilities ? exp.responsibilities.map(r => `<li>${r}</li>`).join('') : ''}
+          </ul>
         </div>
-        <ul>
-          ${exp.responsibilities ? exp.responsibilities.map(r => `<li>${r}</li>`).join('') : ''}
-        </ul>
       `;
     }
   }
   html = html.replace('<!-- work_experience -->', workExperienceHtml);
-
-  // Replace additional info placeholder
-  let additionalInfoHtml = '';
-  if (resumeData.additional_info) {
-    if (resumeData.additional_info.languages && resumeData.additional_info.languages.length > 0) {
-      additionalInfoHtml += `<li><span class="bold">Languages:</span> ${resumeData.additional_info.languages.join(', ')}</li>`;
-    }
-    if (resumeData.additional_info.certifications && resumeData.additional_info.certifications.length > 0) {
-      additionalInfoHtml += `<li><span class="bold">Certifications:</span> ${resumeData.additional_info.certifications.join(', ')}</li>`;
-    }
-    if (resumeData.additional_info.awards_activities && resumeData.additional_info.awards_activities.length > 0) {
-      additionalInfoHtml += `<li><span class="bold">Awards/Activities:</span> ${resumeData.additional_info.awards_activities.join(', ')}</li>`;
-    }
-  }
-  
-  if (additionalInfoHtml) {
-    html = html.replace('<div class="section additional-info"></div>', `<div class="section additional-info"><h2>ADDITIONAL INFORMATION</h2><ul class="sub-list">${additionalInfoHtml}</ul></div>`);
-  } else {
-    html = html.replace('<div class="section additional-info"></div>', '');
-  }
 
   if (returnHtml) {
     return html;
