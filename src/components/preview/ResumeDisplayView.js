@@ -1,34 +1,9 @@
+
 "use client";
 
-/**
- * A component for displaying a resume.
- * @param {object} props - The component's props.
- * @param {string} props.title - The title of the resume display.
- * @param {object} props.resumeData - The resume data to display.
- * @param {function} props.handleDownload - The function to call when the download button is clicked.
- * @param {boolean} props.downloading - Whether the resume is currently being downloaded.
- * @param {string} props.downloadButtonText - The text to display on the download button.
- * @returns {JSX.Element} The rendered component.
- */
-export default function ResumeDisplay({
-  title,
-  resumeData,
-  handleDownload,
-  downloading,
-  downloadButtonText,
-}) {
+export default function ResumeDisplayView({ resumeData }) {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">{title}</h2>
-        <button
-          onClick={handleDownload}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors disabled:bg-gray-500"
-          disabled={downloading}
-        >
-          {downloading ? "Downloading..." : downloadButtonText}
-        </button>
-      </div>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg h-full overflow-y-auto text-white">
       <div className="space-y-6">
         <div>
           <h3 className="text-xl font-bold">

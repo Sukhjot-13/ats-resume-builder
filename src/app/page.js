@@ -6,7 +6,7 @@ import ResumeUpload from "../components/home/ResumeUpload";
 import JobDescriptionInput from "../components/home/JobDescriptionInput";
 import SpecialInstructionsInput from "../components/home/SpecialInstructionsInput";
 import TemplateSelector from "../components/home/TemplateSelector";
-import ResumeDisplay from "../components/home/ResumeDisplay";
+import ResumePreview from "../components/preview/ResumePreview";
 
 const transformData = (parsedData) => {
   const transformed = { ...userData };
@@ -21,8 +21,14 @@ const transformData = (parsedData) => {
     transformed.education = parsedData.education;
   }
   if (parsedData.skills) {
-    if (Array.isArray(parsedData.skills) && parsedData.skills.every(skill => typeof skill === 'string')) {
-      transformed.skills = parsedData.skills.map(skill => ({ skill_name: skill, category: 'Uncategorized' }));
+    if (
+      Array.isArray(parsedData.skills) &&
+      parsedData.skills.every((skill) => typeof skill === "string")
+    ) {
+      transformed.skills = parsedData.skills.map((skill) => ({
+        skill_name: skill,
+        category: "Uncategorized",
+      }));
     } else {
       transformed.skills = parsedData.skills;
     }
@@ -217,9 +223,15 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Column: Upload, Job Description, and Edit */}
           <div className="space-y-8">
-            <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
+            <ResumeUpload
+              parsing={parsing}
+              handleFileUpload={handleFileUpload}
+            />
 
-            <JobDescriptionInput jobDescription={jobDescription} setJobDescription={setJobDescription} />
+            <JobDescriptionInput
+              jobDescription={jobDescription}
+              setJobDescription={setJobDescription}
+            />
 
             <SpecialInstructionsInput
               specialInstructions={specialInstructions}
@@ -229,29 +241,27 @@ export default function Home() {
               profile={profile}
             />
 
-            <TemplateSelector selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate} />
+            <TemplateSelector
+              selectedTemplate={selectedTemplate}
+              setSelectedTemplate={setSelectedTemplate}
+            />
           </div>
 
           {/* Right Column: Display Profile and Tailored Resume */}
           <div className="space-y-8">
-            {profile && profile.profile && (
-              <ResumeDisplay
-                title="Your Profile"
-                resumeData={profile}
-                handleDownload={handleDownloadParsedResume}
-                downloading={downloadingParsed}
-                downloadButtonText="Download Parsed Resume"
+            {tailoredResume ? (
+              <ResumePreview
+                tailoredResume={tailoredResume}
+                selectedTemplate={selectedTemplate}
               />
-            )}
-
-            {tailoredResume && (
-              <ResumeDisplay
-                title="Tailored Resume"
-                resumeData={tailoredResume}
-                handleDownload={handleDownloadTailoredResume}
-                downloading={downloadingTailored}
-                downloadButtonText="Download PDF"
-              />
+            ) : (
+              profile &&
+              profile.profile && (
+                <ResumePreview
+                  tailoredResume={profile}
+                  selectedTemplate={"test.html"}
+                />
+              )
             )}
           </div>
         </div>

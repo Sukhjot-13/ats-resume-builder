@@ -19,9 +19,10 @@ const formatDate = (dateString) => {
  * Renders a resume to a PDF buffer using a given template.
  * @param {object} resumeData - The resume data to render.
  * @param {string} template - The name of the HTML template to use.
- * @returns {Promise<Buffer>} The rendered PDF buffer.
+ * @param {boolean} returnHtml - Whether to return the HTML instead of the PDF buffer.
+ * @returns {Promise<Buffer|string>} The rendered PDF buffer or HTML string.
  */
-export async function renderPdf(resumeData, template) {
+export async function renderPdf(resumeData, template, returnHtml = false) {
   // Read the HTML template from the file system
   const templatePath = path.join(process.cwd(), 'src', 'components', 'resume-templates', 'html-templates', template);
   let html = await fs.readFile(templatePath, 'utf-8');
@@ -104,6 +105,10 @@ export async function renderPdf(resumeData, template) {
     html = html.replace('<div class="section additional-info"></div>', `<div class="section additional-info"><h2>ADDITIONAL INFORMATION</h2><ul class="sub-list">${additionalInfoHtml}</ul></div>`);
   } else {
     html = html.replace('<div class="section additional-info"></div>', '');
+  }
+
+  if (returnHtml) {
+    return html;
   }
 
   // Launch Puppeteer to generate the PDF

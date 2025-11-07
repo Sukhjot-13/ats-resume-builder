@@ -18,7 +18,6 @@ export default function TemplateSelector({ selectedTemplate, setSelectedTemplate
       >
         <option value="Simple.html">Simple</option>
         <option value="test.html">Test</option>
-        <option value="test-filled.html">Test Filled</option>
       </select>
     </div>
   );

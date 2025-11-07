@@ -5,11 +5,11 @@ import { renderPdf } from '../../../services/pdfRenderService';
 export async function POST(request) {
   try {
     const { resumeData, template } = await request.json();
-    const html = await renderPdf(resumeData, template, true);
+    const pdfBuffer = await renderPdf(resumeData, template);
 
-    return new NextResponse(html, {
+    return new NextResponse(pdfBuffer, {
       headers: {
-        'Content-Type': 'text/html',
+        'Content-Type': 'application/pdf',
       },
     });
   } catch (error) {
