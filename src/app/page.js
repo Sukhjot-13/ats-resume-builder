@@ -151,6 +151,11 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Column: Upload, Job Description, and Edit */}
           <div className="space-y-8">
+            <TemplateSelector
+              selectedTemplate={selectedTemplate}
+              setSelectedTemplate={setSelectedTemplate}
+            />
+
             <ResumeUpload
               parsing={parsing}
               handleFileUpload={handleFileUpload}
@@ -167,11 +172,6 @@ export default function Home() {
               handleGenerateResume={handleGenerateResume}
               generating={generating}
               profile={profile}
-            />
-
-            <TemplateSelector
-              selectedTemplate={selectedTemplate}
-              setSelectedTemplate={setSelectedTemplate}
             />
           </div>
 

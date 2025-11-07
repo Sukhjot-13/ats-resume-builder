@@ -18,6 +18,9 @@ export default function TemplateSelector({ selectedTemplate, setSelectedTemplate
       >
         <option value="Simple.html">Simple</option>
         <option value="test.html">Test</option>
+        <option value="Professional.html">Professional</option>
+        <option value="Modern.html">Modern</option>
+        <option value="Creative.html">Creative</option>
       </select>
     </div>
   );

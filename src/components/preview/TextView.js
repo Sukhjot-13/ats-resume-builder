@@ -8,16 +8,7 @@ export default function TextView({ resumeData, template }) {
 
   useEffect(() => {
     const fetchHtml = async () => {
-      const response = await fetch('/api/render-test-html', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          resumeData: resumeData,
-          template: template,
-        }),
-      });
+      const response = await fetch('/api/render-test-html');
       const html = await response.text();
       setHtml(html);
     };
