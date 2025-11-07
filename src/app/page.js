@@ -51,7 +51,7 @@ export default function Home() {
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [tailoredResume, setTailoredResume] = useState(null);
   const [generating, setGenerating] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState("Simple.html");
+  const [selectedTemplate, setSelectedTemplate] = useState("test.html");
 
   useEffect(() => {
     const fetchProfile = async () => {
