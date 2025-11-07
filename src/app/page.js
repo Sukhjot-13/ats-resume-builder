@@ -1,14 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+const PDFViewer = dynamic(() => import('../components/PDFViewer'), { ssr: false });
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [parsing, setParsing] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
+  const [specialInstructions, setSpecialInstructions] = useState('');
   const [tailoredResume, setTailoredResume] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('Classic');
+  const [pdfPreview, setPdfPreview] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -41,6 +47,7 @@ export default function Home() {
 
       if (response.ok) {
         const parsedData = await response.json();
+        console.log('Parsed data:', parsedData);
         setProfile(parsedData);
         await fetch('/api/profile', {
           method: 'POST',
@@ -50,10 +57,13 @@ export default function Home() {
           body: JSON.stringify(parsedData),
         });
       } else {
-        console.error('Error parsing resume:', await response.text());
+        const errorText = await response.text();
+        console.error('Error parsing resume:', errorText);
+        alert(`Error parsing resume: ${errorText}`);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
+      alert(`Error uploading file: ${error.message}`);
     }
     setParsing(false);
   };
@@ -68,7 +78,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ profile, jobDescription }),
+        body: JSON.stringify({ profile, jobDescription, specialInstructions }),
       });
 
       if (response.ok) {
@@ -83,7 +93,7 @@ export default function Home() {
     setGenerating(false);
   };
 
-  const handleDownloadPdf = async () => {
+  const handleGenerateAndDownloadPdf = async () => {
     if (!tailoredResume) return;
 
     try {
@@ -92,12 +102,14 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ resumeData: tailoredResume }),
+        body: JSON.stringify({ resumeData: tailoredResume, template: selectedTemplate }),
       });
 
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
+        setPdfPreview(url);
+
         const a = document.createElement('a');
         a.href = url;
         a.download = 'resume.pdf';
@@ -147,6 +159,17 @@ export default function Home() {
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
               ></textarea>
+            </div>
+
+            {/* New Special Instructions Section */}
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-4">Special Instructions</h2>
+              <textarea
+                className="w-full h-40 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Add any special instructions for tailoring your resume (e.g., 'Focus on leadership roles', 'Highlight my experience with React.js')..."
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}
+              ></textarea>
               <button
                 onClick={handleGenerateResume}
                 className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-500"
@@ -155,11 +178,27 @@ export default function Home() {
                 {generating ? 'Generating...' : 'Generate Tailored Resume'}
               </button>
             </div>
+
+            {/* Template Selector */}
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-4">Select a Template</h2>
+              <select
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value)}
+                className="w-full bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Classic">Classic</option>
+                <option value="Modern">Modern</option>
+                <option value="Creative">Creative</option>
+                <option value="AdviceWithErin1">AdviceWithErin1</option>
+                <option value="AdviceWithErin2">AdviceWithErin2</option>
+              </select>
+            </div>
           </div>
 
           {/* Right Column: Display Profile and Tailored Resume */}
           <div className="space-y-8">
-            {profile && (
+            {profile && profile.profile && (
               <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4">Your Profile</h2>
                 <div className="space-y-6">
@@ -172,13 +211,13 @@ export default function Home() {
                   <div>
                     <h4 className="text-lg font-semibold">Work Experience</h4>
                     <ul className="mt-2 space-y-4">
-                      {profile.work_experience.map((exp) => (
-                        <li key={exp.id}>
+                      {profile.work_experience.map((exp, i) => (
+                        <li key={i}>
                           <p className="font-bold">{exp.job_title} at {exp.company}</p>
                           <p className="text-sm text-gray-400">{exp.start_date} - {exp.end_date}</p>
                           <ul className="list-disc list-inside mt-2 text-gray-300">
-                            {exp.responsibilities.map((resp, i) => (
-                              <li key={i}>{resp}</li>
+                            {exp.responsibilities.map((resp, j) => (
+                              <li key={j}>{resp}</li>
                             ))}
                           </ul>
                         </li>
@@ -188,8 +227,8 @@ export default function Home() {
                   <div>
                     <h4 className="text-lg font-semibold">Education</h4>
                     <ul className="mt-2 space-y-2">
-                      {profile.education.map((edu) => (
-                        <li key={edu.id}>
+                      {profile.education.map((edu, i) => (
+                        <li key={i}>
                           <p className="font-bold">{edu.institution}</p>
                           <p className="text-gray-400">{edu.degree} in {edu.field_of_study}</p>
                           <p className="text-sm text-gray-400">Graduated: {edu.graduation_date}</p>
@@ -200,8 +239,8 @@ export default function Home() {
                   <div>
                     <h4 className="text-lg font-semibold">Skills</h4>
                     <ul className="flex flex-wrap gap-2 mt-2">
-                      {profile.skills.map((skill) => (
-                        <li key={skill.id} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                      {profile.skills.map((skill, i) => (
+                        <li key={i} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
                           {skill.skill_name}
                         </li>
                       ))}
@@ -216,7 +255,7 @@ export default function Home() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-semibold">Tailored Resume</h2>
                   <button
-                    onClick={handleDownloadPdf}
+                    onClick={handleGenerateAndDownloadPdf}
                     className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors"
                   >
                     Download PDF
@@ -232,13 +271,13 @@ export default function Home() {
                   <div>
                     <h4 className="text-lg font-semibold">Work Experience</h4>
                     <ul className="mt-2 space-y-4">
-                      {tailoredResume.work_experience.map((exp) => (
-                        <li key={exp.id}>
+                      {tailoredResume.work_experience.map((exp, i) => (
+                        <li key={i}>
                           <p className="font-bold">{exp.job_title} at {exp.company}</p>
                           <p className="text-sm text-gray-400">{exp.start_date} - {exp.end_date}</p>
                           <ul className="list-disc list-inside mt-2 text-gray-300">
-                            {exp.responsibilities.map((resp, i) => (
-                              <li key={i}>{resp}</li>
+                            {exp.responsibilities.map((resp, j) => (
+                              <li key={j}>{resp}</li>
                             ))}
                           </ul>
                         </li>
@@ -248,8 +287,8 @@ export default function Home() {
                   <div>
                     <h4 className="text-lg font-semibold">Education</h4>
                     <ul className="mt-2 space-y-2">
-                      {tailoredResume.education.map((edu) => (
-                        <li key={edu.id}>
+                      {tailoredResume.education.map((edu, i) => (
+                        <li key={i}>
                           <p className="font-bold">{edu.institution}</p>
                           <p className="text-gray-400">{edu.degree} in {edu.field_of_study}</p>
                           <p className="text-sm text-gray-400">Graduated: {edu.graduation_date}</p>
@@ -260,14 +299,21 @@ export default function Home() {
                   <div>
                     <h4 className="text-lg font-semibold">Skills</h4>
                     <ul className="flex flex-wrap gap-2 mt-2">
-                      {tailoredResume.skills.map((skill) => (
-                        <li key={skill.id} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                      {tailoredResume.skills.map((skill, i) => (
+                        <li key={i} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
                           {skill.skill_name}
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {pdfPreview && (
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold mb-4">PDF Preview</h2>
+                <PDFViewer file={pdfPreview} />
               </div>
             )}
           </div>

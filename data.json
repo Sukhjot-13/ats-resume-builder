@@ -7,26 +7,24 @@
   },
   "work_experience": [
     {
-      "id": "we1",
       "job_title": "Shift Supervisor",
-      "company": "Burger King, Barrie",
-      "start_date": "May 2023",
+      "company": "Burger King",
+      "start_date": "2023-05-01",
       "end_date": "Present",
       "is_current": true,
       "responsibilities": [
         "Developed strong customer service skills through direct interactions with customers, ensuring a positive dining experience and handling transactions efficiently.",
-        "Over see crew members during shifts, ensuring tasks are completed efficiently and following Burger King standards.",
+        "Oversee crew members during shifts, ensuring tasks are completed efficiently and following Burger King standards.",
         "Ensure excellent customer service is provided, handle customer complaints, and resolve issues promptly and professionally.",
         "Oversee cash registers, balance cash drawers and make sure all transactions are accurately recorded and reported.",
         "Foster a positive work environment, encourage team work and provide feedback and recognition to staff."
       ]
     },
     {
-      "id": "we2",
       "job_title": "Mobile Application Developer (Intern)",
-      "company": "IHP (Interact Health Pro),Toronto",
-      "start_date": "April 2024",
-      "end_date": "December 2024",
+      "company": "IHP (Interact Health Pro)",
+      "start_date": "2024-04-01",
+      "end_date": "2024-12-01",
       "is_current": false,
       "responsibilities": [
         "Designed, developed, implemented and tested IT applications, both as a solo developer and in collaboration with a team.",
@@ -39,11 +37,10 @@
       ]
     },
     {
-      "id": "we3",
       "job_title": "Mobile/Security Guard",
-      "company": "G Force Security, iGuard360 and Jayo security, Barrie",
-      "start_date": "",
-      "end_date": "",
+      "company": "G Force Security, iGuard360 and Jayo security",
+      "start_date": null,
+      "end_date": null,
       "is_current": false,
       "responsibilities": [
         "Monitored and maintained a secure environment outside banking or clubs premises, conducting regular patrols and ensuring the safety of both customers and staff.",
@@ -52,11 +49,10 @@
       ]
     },
     {
-      "id": "we4",
       "job_title": "Patient Transfer Attendant",
-      "company": "Encore, Toronto",
-      "start_date": "Jan 2024",
-      "end_date": "May 2024",
+      "company": "Encore",
+      "start_date": "2024-01-01",
+      "end_date": "2024-05-01",
       "is_current": false,
       "responsibilities": [
         "Communicated effectively with health care providers patients and families to facilitate smooth transfers.",
@@ -67,85 +63,88 @@
   ],
   "education": [
     {
-      "id": "edu1",
-      "institution": "Georgian College, Barrie",
-      "degree": "Diploma Computer Programming",
+      "institution": "Georgian College",
+      "degree": "Diploma Computer Programming Candidate",
       "field_of_study": "Computer Programming",
-      "graduation_date": "Expected Graduation 2025"
+      "graduation_date": "2025 (Expected)"
     }
   ],
   "skills": [
     {
-      "id": "skill1",
       "skill_name": "Leadership and training",
       "category": "Professional"
     },
-    { "id": "skill2", "skill_name": "Creativity", "category": "Professional" },
-    { "id": "skill3", "skill_name": "Management", "category": "Professional" },
     {
-      "id": "skill4",
+      "skill_name": "Creativity",
+      "category": "Professional"
+    },
+    {
+      "skill_name": "Management",
+      "category": "Professional"
+    },
+    {
       "skill_name": "Problem-Solving",
       "category": "Professional"
     },
     {
-      "id": "skill5",
       "skill_name": "Attention to Detail",
       "category": "Professional"
     },
     {
-      "id": "skill6",
       "skill_name": "Responsiveness",
       "category": "Professional"
     },
-    { "id": "skill7", "skill_name": "Next.Js", "category": "Technical" },
-    { "id": "skill8", "skill_name": "React", "category": "Technical" },
-    { "id": "skill9", "skill_name": "NodeJS", "category": "Technical" },
-    { "id": "skill10", "skill_name": "MongoDB", "category": "Technical" },
-    { "id": "skill11", "skill_name": "MySQL", "category": "Technical" },
     {
-      "id": "skill12",
+      "skill_name": "Next.Js",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "React",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "NodeJS",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "MongoDB",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "MySQL",
+      "category": "Technical"
+    },
+    {
       "skill_name": "Web Applications",
       "category": "Technical"
     },
     {
-      "id": "skill13",
-      "skill_name": "HTML, CSS,JavaScript",
+      "skill_name": "HTML",
       "category": "Technical"
     },
-    { "id": "skill14", "skill_name": "GitHub", "category": "Technical" },
     {
-      "id": "skill15",
+      "skill_name": "CSS",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "JavaScript",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "GitHub",
+      "category": "Technical"
+    },
+    {
       "skill_name": "Object-Oriented Design",
       "category": "Technical"
     },
-    { "id": "skill16", "skill_name": "Typescript", "category": "Technical" },
-    { "id": "skill17", "skill_name": "Python", "category": "Technical" }
-  ],
-  "certifications": [
-    { "id": "cert1", "name": "Security Guard License" },
-    { "id": "cert2", "name": "First Aid Certification" },
-    { "id": "cert3", "name": "ServSafe Certificate" },
-    { "id": "cert4", "name": "First Responder (Red Cross)" }
-  ],
-  "projects": [
     {
-      "id": "proj1",
-      "name": "URL Shortener",
-      "technologies": "Next.js, React, Tailwind CSS, Node.js, MongoDB",
-      "description": "URL Shortener is a web app built with Next.js, React, Tailwind CSS, Node. js, and MongoDB. It allows users to create an account, shorten long URLs, and share them. Key features include fully responsive design, custom user authentication, real-time link count tracking and link expiry."
+      "skill_name": "Typescript",
+      "category": "Technical"
     },
     {
-      "id": "proj2",
-      "name": "E-Commerce Website and Mobile App",
-      "technologies": "React Native, Expo, Firebase, Stripe & tailwind CSS, Node.js, MongoDB",
-      "description": "E-commerce website is a web app built with React and JavaScript libraries, Tailwind CSS, Node.js ,and MongoDB. It allows users to create an account, add products to the cart and checkout. Key features include a responsive design, user authentication using Firebase, payment gateway integration with Stripe, real-time cart count tracking, and real- time checkout."
-    },
-    {
-      "id": "proj3",
-      "name": "Retro Website",
-      "technologies": "HTML, CSS, JavaScript",
-      "description": "Retro website for Ford mustang 1980. This project was built using HTML, CSS & Java Script. The website is responsive and has small animations."
+      "skill_name": "Python",
+      "category": "Technical"
     }
-  ],
-  "languages": ["English", "Hindi", "Punjabi"]
+  ]
 }

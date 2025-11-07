@@ -86,7 +86,7 @@ export async function POST(request) {
 
     // 4. Call Gemini API
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
     const result = await model.generateContent(prompt);
     const text = result.response.text().replace(/```json/g, "").replace(/```/g, "");
 
@@ -102,3 +102,4 @@ export async function POST(request) {
     return new Response('Internal Server Error', { status: 500 });
   }
 }
+
