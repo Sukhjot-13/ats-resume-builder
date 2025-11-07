@@ -151,3 +151,7 @@ This phase implements the user dashboard and resume history.
    - **File Location:** `app/(dashboard)/page.tsx`
    - **Functionality:**
      - Displays a list of previously generated resumes from the `generated_resumes` table.
+
+### Admin Configuration
+
+In the future, an admin interface will be developed to allow for the configuration of application settings, such as token expiration times. The access and refresh token lifetimes will be stored as configurable variables in the database.
