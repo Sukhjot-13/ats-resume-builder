@@ -25,6 +25,13 @@ The application will guide users through the following workflow:
 4.  **Tailor:** Users can then paste a job description, and the AI will tailor the resume content to match the requirements of the job.
 5.  **Render:** The user can select a template and render the tailored resume as a PDF.
 
+## Refactoring Ideas
+
+-   **Extract business logic into custom hooks:**
+    -   Create a `useProfile.js` hook to manage the profile state and the logic for fetching and updating the profile.
+    -   Create other custom hooks for managing job description, special instructions, tailored resume, etc.
+-   **Make links in generated PDFs clickable.**
+
 ## Tech Stack
 
 -   **Framework:** Next.js 14 (App Router)

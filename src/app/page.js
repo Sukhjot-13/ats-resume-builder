@@ -2,6 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import userData from "../models/user-data";
+import ResumeUpload from "../components/home/ResumeUpload";
+import JobDescriptionInput from "../components/home/JobDescriptionInput";
+import SpecialInstructionsInput from "../components/home/SpecialInstructionsInput";
+import TemplateSelector from "../components/home/TemplateSelector";
+import ResumeDisplay from "../components/home/ResumeDisplay";
 
 const transformData = (parsedData) => {
   const transformed = { ...userData };
@@ -43,7 +48,6 @@ export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState("test.html");
   const [downloadingParsed, setDownloadingParsed] = useState(false);
   const [downloadingTailored, setDownloadingTailored] = useState(false);
-  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -213,300 +217,41 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Column: Upload, Job Description, and Edit */}
           <div className="space-y-8">
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-4">
-                Upload Your Resume
-              </h2>
-              <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
-                <input
-                  type="file"
-                  accept=".pdf,.docx"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="resume-upload"
-                  ref={fileInputRef}
-                  disabled={parsing}
-                />
-                <button
-                  onClick={() => fileInputRef.current.click()}
-                  className={`cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors ${
-                    parsing ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={parsing}
-                >
-                  {parsing ? "Parsing..." : "Select a file"}
-                </button>
-                <p className="mt-2 text-sm text-gray-400">PDF or DOCX</p>
-              </div>
-            </div>
+            <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
 
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-4">Job Description</h2>
-              <textarea
-                className="w-full h-40 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Paste the job description here..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-              ></textarea>
-            </div>
+            <JobDescriptionInput jobDescription={jobDescription} setJobDescription={setJobDescription} />
 
-            {/* New Special Instructions Section */}
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-4">
-                Special Instructions
-              </h2>
-              <textarea
-                className="w-full h-40 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Add any special instructions for tailoring your resume (e.g., 'Focus on leadership roles', 'Highlight my experience with React.js')..."
-                value={specialInstructions}
-                onChange={(e) => setSpecialInstructions(e.target.value)}
-              ></textarea>
-              <button
-                onClick={handleGenerateResume}
-                className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-500"
-                disabled={generating || !profile}
-              >
-                {generating ? "Generating..." : "Generate Tailored Resume"}
-              </button>
-            </div>
+            <SpecialInstructionsInput
+              specialInstructions={specialInstructions}
+              setSpecialInstructions={setSpecialInstructions}
+              handleGenerateResume={handleGenerateResume}
+              generating={generating}
+              profile={profile}
+            />
 
-            {/* Template Selector */}
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-4">Select a Template</h2>
-              <select
-                value={selectedTemplate}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="w-full bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Simple.html">Simple</option>
-                <option value="test.html">Test</option>
-                <option value="test-filled.html">Test Filled</option>
-              </select>
-            </div>
+            <TemplateSelector selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate} />
           </div>
 
           {/* Right Column: Display Profile and Tailored Resume */}
           <div className="space-y-8">
             {profile && profile.profile && (
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-semibold">Your Profile</h2>
-                  <button
-                    onClick={handleDownloadParsedResume}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors disabled:bg-gray-500"
-                    disabled={downloadingParsed}
-                  >
-                    {downloadingParsed
-                      ? "Downloading..."
-                      : "Download Parsed Resume"}
-                  </button>
-                </div>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-bold">
-                      {profile.profile.full_name}
-                    </h3>
-                    <p className="text-gray-400">{profile.profile.email}</p>
-                    <p className="text-gray-400">{profile.profile.phone}</p>
-                    <p className="text-gray-400">{profile.profile.location}</p>
-                    <p className="text-gray-400">{profile.profile.website}</p>
-                    <p className="text-gray-400">{profile.profile.headline}</p>
-                    <p className="mt-4 text-gray-300">
-                      {profile.profile.generic_summary}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold">Work Experience</h4>
-                    <ul className="mt-2 space-y-4">
-                      {profile.work_experience.map((exp, i) => (
-                        <li key={i}>
-                          <p className="font-bold">
-                            {exp.job_title} at {exp.company}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {exp.start_date} - {exp.end_date}
-                          </p>
-                          <ul className="list-disc list-inside mt-2 text-gray-300">
-                            {exp.responsibilities.map((resp, j) => (
-                              <li key={j}>{resp}</li>
-                            ))}
-                          </ul>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold">Education</h4>
-                    <ul className="mt-2 space-y-2">
-                      {profile.education.map((edu, i) => (
-                        <li key={i}>
-                          <p className="font-bold">{edu.institution}</p>
-                          <p className="text-gray-400">
-                            {edu.degree} in {edu.field_of_study}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {edu.start_date} - {edu.end_date}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {edu.relevant_coursework}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold">Skills</h4>
-                    <ul className="flex flex-wrap gap-2 mt-2">
-                      {profile.skills.map((skill, i) => (
-                        <li
-                          key={i}
-                          className="bg-gray-700 px-3 py-1 rounded-full text-sm"
-                        >
-                          {skill.skill_name}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  {profile.additional_info && (
-                    <div>
-                      <h4 className="text-lg font-semibold">
-                        Additional Information
-                      </h4>
-                      <ul className="mt-2 space-y-2">
-                        <li>
-                          <span className="font-bold">Languages:</span>{" "}
-                          {profile.additional_info.languages.join(", ")}
-                        </li>
-                        <li>
-                          <span className="font-bold">Certifications:</span>{" "}
-                          {profile.additional_info.certifications.join(", ")}
-                        </li>
-                        <li>
-                          <span className="font-bold">Awards/Activities:</span>{" "}
-                          {profile.additional_info.awards_activities.join(", ")}
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ResumeDisplay
+                title="Your Profile"
+                resumeData={profile}
+                handleDownload={handleDownloadParsedResume}
+                downloading={downloadingParsed}
+                downloadButtonText="Download Parsed Resume"
+              />
             )}
 
             {tailoredResume && (
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-semibold">Tailored Resume</h2>
-                  <button
-                    onClick={handleDownloadTailoredResume}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors disabled:bg-gray-500"
-                    disabled={downloadingTailored}
-                  >
-                    {downloadingTailored ? "Downloading..." : "Download PDF"}
-                  </button>
-                </div>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-bold">
-                      {tailoredResume.profile.full_name}
-                    </h3>
-                    <p className="text-gray-400">
-                      {tailoredResume.profile.email}
-                    </p>
-                    <p className="text-gray-400">
-                      {tailoredResume.profile.phone}
-                    </p>
-                    <p className="text-gray-400">
-                      {tailoredResume.profile.location}
-                    </p>
-                    <p className="text-gray-400">
-                      {tailoredResume.profile.website}
-                    </p>
-                    <p className="text-gray-400">
-                      {tailoredResume.profile.headline}
-                    </p>
-                    <p className="mt-4 text-gray-300">
-                      {tailoredResume.profile.generic_summary}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold">Work Experience</h4>
-                    <ul className="mt-2 space-y-4">
-                      {tailoredResume.work_experience.map((exp, i) => (
-                        <li key={i}>
-                          <p className="font-bold">
-                            {exp.job_title} at {exp.company}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {exp.start_date} - {exp.end_date}
-                          </p>
-                          <ul className="list-disc list-inside mt-2 text-gray-300">
-                            {exp.responsibilities.map((resp, j) => (
-                              <li key={j}>{resp}</li>
-                            ))}
-                          </ul>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold">Education</h4>
-                    <ul className="mt-2 space-y-2">
-                      {tailoredResume.education.map((edu, i) => (
-                        <li key={i}>
-                          <p className="font-bold">{edu.institution}</p>
-                          <p className="text-gray-400">
-                            {edu.degree} in {edu.field_of_study}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {edu.start_date} - {edu.end_date}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            {edu.relevant_coursework}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold">Skills</h4>
-                    <ul className="flex flex-wrap gap-2 mt-2">
-                      {tailoredResume.skills.map((skill, i) => (
-                        <li
-                          key={i}
-                          className="bg-gray-700 px-3 py-1 rounded-full text-sm"
-                        >
-                          {skill.skill_name}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  {tailoredResume.additional_info && (
-                    <div>
-                      <h4 className="text-lg font-semibold">
-                        Additional Information
-                      </h4>
-                      <ul className="mt-2 space-y-2">
-                        <li>
-                          <span className="font-bold">Languages:</span>{" "}
-                          {tailoredResume.additional_info.languages.join(", ")}
-                        </li>
-                        <li>
-                          <span className="font-bold">Certifications:</span>{" "}
-                          {tailoredResume.additional_info.certifications.join(
-                            ", "
-                          )}
-                        </li>
-                        <li>
-                          <span className="font-bold">Awards/Activities:</span>{" "}
-                          {tailoredResume.additional_info.awards_activities.join(
-                            ", "
-                          )}
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ResumeDisplay
+                title="Tailored Resume"
+                resumeData={tailoredResume}
+                handleDownload={handleDownloadTailoredResume}
+                downloading={downloadingTailored}
+                downloadButtonText="Download PDF"
+              />
             )}
           </div>
         </div>
