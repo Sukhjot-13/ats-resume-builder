@@ -4,7 +4,7 @@
     "email": "sukhjotsingh441@gmail.com",
     "phone": "+1(647)-530-8909",
     "location": null,
-    "website": "LinkedIn, Go to Portfolio",
+    "website": "https://portfolio-self-five-25.vercel.app",
     "headline": "Versatile and dependable professional with experience in customer service, team leadership, mobile app development, and security.",
     "generic_summary": "Proven ability to lead teams and ensure smooth operations as a Shift Supervisor at Burger King. Gained hands-on technical experience developing and deploying mobile applications during an internship at IHP. Skilled in maintaining safety and handling emergencies through roles as a Mobile/Security Guard. Strong communicator, quick problem-solver, and team player."
   },
@@ -27,7 +27,7 @@
       "job_title": "Mobile Application Developer (Intern)",
       "company": "IHP (Interact Health Pro)",
       "start_date": "2024-04-01",
-      "end_date": "2024-12-31",
+      "end_date": "2024-12-01",
       "is_current": false,
       "responsibilities": [
         "Designed, developed, implemented and tested IT applications, both as a solo developer and in collaboration with a team.",
@@ -55,7 +55,7 @@
       "job_title": "Patient Transfer Attendant",
       "company": "Encore",
       "start_date": "2024-01-01",
-      "end_date": "2024-05-31",
+      "end_date": "2024-05-01",
       "is_current": false,
       "responsibilities": [
         "Communicated effectively with health care providers patients and families to facilitate smooth transfers.",
@@ -70,43 +70,100 @@
       "degree": "Diploma Computer Programming Candidate (Expected Graduation 2025)",
       "field_of_study": "Computer Programming",
       "start_date": "2023-05-01",
-      "end_date": "2024-12-31",
+      "end_date": "2024-12-01",
       "relevant_coursework": null
     }
   ],
   "skills": [
-    "Leadership and training",
-    "Creativity",
-    "Management",
-    "Problem-Solving",
-    "Attention to Detail",
-    "Responsiveness",
-    "Next.Js",
-    "React",
-    "NodeJS",
-    "MongoDB",
-    "MySQL",
-    "Web Applications",
-    "HTML",
-    "CSS",
-    "JavaScript",
-    "GitHub",
-    "Object-Oriented Design",
-    "Typescript",
-    "Python"
+    {
+      "skill_name": "Leadership and training",
+      "category": "Professional"
+    },
+    {
+      "skill_name": "Creativity",
+      "category": "Professional"
+    },
+    {
+      "skill_name": "Management",
+      "category": "Professional"
+    },
+    {
+      "skill_name": "Problem-Solving",
+      "category": "Professional"
+    },
+    {
+      "skill_name": "Attention to Detail",
+      "category": "Professional"
+    },
+    {
+      "skill_name": "Responsiveness",
+      "category": "Professional"
+    },
+    {
+      "skill_name": "Next.Js",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "React",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "NodeJS",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "MongoDB",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "MySQL",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "Web Applications",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "HTML",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "CSS",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "JavaScript",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "GitHub",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "Object-Oriented Design",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "Typescript",
+      "category": "Technical"
+    },
+    {
+      "skill_name": "Python",
+      "category": "Technical"
+    }
   ],
   "additional_info": {
-    "languages": [
-      "English",
-      "Hindi",
-      "Punjabi"
-    ],
+    "languages": ["English", "Hindi", "Punjabi"],
     "certifications": [
       "Security Guard License",
       "First Aid Certification",
       "ServSafe Certificate",
       "First Responder (Red Cross)"
     ],
-    "awards_activities": []
+    "awards_activities": [
+      "URL Shortener (Project)",
+      "E-Commerce Website and Mobile App (Project)",
+      "Retro Website (Project)"
+    ]
   }
 }

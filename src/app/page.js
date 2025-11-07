@@ -40,6 +40,8 @@ export default function Home() {
   const [generating, setGenerating] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("test.html");
   const [pdfPreview, setPdfPreview] = useState(null);
+  const [downloadingParsed, setDownloadingParsed] = useState(false);
+  const [downloadingTailored, setDownloadingTailored] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -97,6 +99,7 @@ export default function Home() {
   const handleDownloadParsedResume = async () => {
     if (!profile) return;
 
+    setDownloadingParsed(true);
     try {
       const response = await fetch("/api/render-pdf", {
         method: "POST",
@@ -126,6 +129,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error downloading PDF:", error);
     }
+    setDownloadingParsed(false);
   };
 
   const handleGenerateResume = async () => {
@@ -157,6 +161,7 @@ export default function Home() {
   const handleDownloadTailoredResume = async () => {
     if (!tailoredResume) return;
 
+    setDownloadingTailored(true);
     try {
       const response = await fetch("/api/render-pdf", {
         method: "POST",
@@ -186,6 +191,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error downloading PDF:", error);
     }
+    setDownloadingTailored(false);
   };
 
   if (loading) {
@@ -217,10 +223,11 @@ export default function Home() {
                   onChange={handleFileUpload}
                   className="hidden"
                   id="resume-upload"
+                  disabled={parsing}
                 />
                 <label
                   htmlFor="resume-upload"
-                  className="cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors"
+                  className={`cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors ${parsing ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {parsing ? "Parsing..." : "Select a file"}
                 </label>
@@ -252,7 +259,7 @@ export default function Home() {
               <button
                 onClick={handleGenerateResume}
                 className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-500"
-                disabled={generating}
+                disabled={generating || !profile}
               >
                 {generating ? "Generating..." : "Generate Tailored Resume"}
               </button>
@@ -281,9 +288,10 @@ export default function Home() {
                   <h2 className="text-2xl font-semibold">Your Profile</h2>
                   <button
                     onClick={handleDownloadParsedResume}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors"
+                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors disabled:bg-gray-500"
+                    disabled={downloadingParsed}
                   >
-                    Download Parsed Resume
+                    {downloadingParsed ? 'Downloading...' : 'Download Parsed Resume'}
                   </button>
                 </div>
                 <div className="space-y-6">
@@ -372,9 +380,10 @@ export default function Home() {
                   <h2 className="text-2xl font-semibold">Tailored Resume</h2>
                   <button
                     onClick={handleDownloadTailoredResume}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors"
+                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors disabled:bg-gray-500"
+                    disabled={downloadingTailored}
                   >
-                    Download PDF
+                    {downloadingTailored ? 'Downloading...' : 'Download PDF'}
                   </button>
                 </div>
                 <div className="space-y-6">

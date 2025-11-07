@@ -55,6 +55,10 @@
     align-items: center;
   }
 
+  .date {
+    font-size: 10px;
+  }
+
   ul {
     margin: 5px 0 10px 20px;
   }
@@ -85,7 +89,7 @@
   <div class="header">
     <h1>{profile.full_name}</h1>
     <p>{profile.headline}</p>
-    <p class="contact">{profile.email} | {profile.phone} | {profile.location} | {profile.website}</p>
+    <p class="contact">{profile.email} | {profile.phone} | {profile.location} {profile.website}</p>
   </div>
 
   <div class="summary">
@@ -109,12 +113,6 @@
   </div>
 
   <div class="section additional-info">
-    <h2>ADDITIONAL INFORMATION</h2>
-    <ul class="sub-list">
-      <li><span class="bold">Languages:</span> {additional_info.languages}</li>
-      <li><span class="bold">Certifications:</span> {additional_info.certifications}</li>
-      <li><span class="bold">Awards/Activities:</span> {additional_info.awards_activities}</li>
-    </ul>
   </div>
 
 </body>

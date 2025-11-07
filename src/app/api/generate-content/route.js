@@ -52,7 +52,9 @@ export async function POST(request) {
           "relevant_coursework": "..."
         }
       ],
-      "skills": [],
+      "skills": [
+        { "skill_name": "...", "category": "..." }
+      ],
       "additional_info": {
         "languages": [],
         "certifications": [],
