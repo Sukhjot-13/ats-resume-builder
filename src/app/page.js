@@ -1,29 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import ReactDOMServer from "react-dom/server";
+import TailwindModern from "../components/resume-templates/tailwind-templates/TailwindModern";
 
-const PDFViewer = dynamic(() => import('../components/PDFViewer'), { ssr: false });
+const PDFViewer = dynamic(() => import("../components/PDFViewer"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [parsing, setParsing] = useState(false);
-  const [jobDescription, setJobDescription] = useState('');
-  const [specialInstructions, setSpecialInstructions] = useState('');
+  const [jobDescription, setJobDescription] = useState("");
+  const [specialInstructions, setSpecialInstructions] = useState("");
   const [tailoredResume, setTailoredResume] = useState(null);
   const [generating, setGenerating] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState('Classic');
+  const [selectedTemplate, setSelectedTemplate] = useState("Classic");
   const [pdfPreview, setPdfPreview] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch('/api/profile');
+        const response = await fetch("/api/profile");
         const data = await response.json();
         setProfile(data);
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error("Error fetching profile:", error);
       }
       setLoading(false);
     };
@@ -37,32 +41,32 @@ export default function Home() {
 
     setParsing(true);
     const formData = new FormData();
-    formData.append('resumeFile', file);
+    formData.append("resumeFile", file);
 
     try {
-      const response = await fetch('/api/parse-resume', {
-        method: 'POST',
+      const response = await fetch("/api/parse-resume", {
+        method: "POST",
         body: formData,
       });
 
       if (response.ok) {
         const parsedData = await response.json();
-        console.log('Parsed data:', parsedData);
+        console.log("Parsed data:", parsedData);
         setProfile(parsedData);
-        await fetch('/api/profile', {
-          method: 'POST',
+        await fetch("/api/profile", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(parsedData),
         });
       } else {
         const errorText = await response.text();
-        console.error('Error parsing resume:', errorText);
+        console.error("Error parsing resume:", errorText);
         alert(`Error parsing resume: ${errorText}`);
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
       alert(`Error uploading file: ${error.message}`);
     }
     setParsing(false);
@@ -73,10 +77,10 @@ export default function Home() {
 
     setGenerating(true);
     try {
-      const response = await fetch('/api/generate-content', {
-        method: 'POST',
+      const response = await fetch("/api/generate-content", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ profile, jobDescription, specialInstructions }),
       });
@@ -85,10 +89,10 @@ export default function Home() {
         const tailoredData = await response.json();
         setTailoredResume(tailoredData);
       } else {
-        console.error('Error generating resume:', await response.text());
+        console.error("Error generating resume:", await response.text());
       }
     } catch (error) {
-      console.error('Error generating resume:', error);
+      console.error("Error generating resume:", error);
     }
     setGenerating(false);
   };
@@ -97,30 +101,52 @@ export default function Home() {
     if (!tailoredResume) return;
 
     try {
-      const response = await fetch('/api/render-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ resumeData: tailoredResume, template: selectedTemplate }),
-      });
+      let response;
+      if (selectedTemplate.endsWith(".js")) {
+        // Dynamically import the component based on selectedTemplate
+        const { default: SelectedTailwindTemplate } = await import(
+          `../components/resume-templates/tailwind-templates/${selectedTemplate}`
+        );
+        const componentHtml = ReactDOMServer.renderToStaticMarkup(
+          <SelectedTailwindTemplate data={tailoredResume} />
+        );
+
+        response = await fetch("/api/render-tailwind-pdf", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ html: componentHtml }),
+        });
+      } else {
+        response = await fetch("/api/render-pdf", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            resumeData: tailoredResume,
+            template: selectedTemplate,
+          }),
+        });
+      }
 
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         setPdfPreview(url);
 
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'resume.pdf';
+        a.download = "resume.pdf";
         document.body.appendChild(a);
         a.click();
         a.remove();
       } else {
-        console.error('Error downloading PDF:', await response.text());
+        console.error("Error downloading PDF:", await response.text());
       }
     } catch (error) {
-      console.error('Error downloading PDF:', error);
+      console.error("Error downloading PDF:", error);
     }
   };
 
@@ -135,17 +161,30 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="container mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">ATS-Friendly Resume Builder</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center">
+          ATS-Friendly Resume Builder
+        </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Column: Upload, Job Description, and Edit */}
           <div className="space-y-8">
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-4">Upload Your Resume</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Upload Your Resume
+              </h2>
               <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
-                <input type="file" accept=".pdf,.docx" onChange={handleFileUpload} className="hidden" id="resume-upload" />
-                <label htmlFor="resume-upload" className="cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
-                  {parsing ? 'Parsing...' : 'Select a file'}
+                <input
+                  type="file"
+                  accept=".pdf,.docx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="resume-upload"
+                />
+                <label
+                  htmlFor="resume-upload"
+                  className="cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  {parsing ? "Parsing..." : "Select a file"}
                 </label>
                 <p className="mt-2 text-sm text-gray-400">PDF or DOCX</p>
               </div>
@@ -163,7 +202,9 @@ export default function Home() {
 
             {/* New Special Instructions Section */}
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-4">Special Instructions</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Special Instructions
+              </h2>
               <textarea
                 className="w-full h-40 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Add any special instructions for tailoring your resume (e.g., 'Focus on leadership roles', 'Highlight my experience with React.js')..."
@@ -175,7 +216,7 @@ export default function Home() {
                 className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-500"
                 disabled={generating}
               >
-                {generating ? 'Generating...' : 'Generate Tailored Resume'}
+                {generating ? "Generating..." : "Generate Tailored Resume"}
               </button>
             </div>
 
@@ -192,6 +233,10 @@ export default function Home() {
                 <option value="Creative">Creative</option>
                 <option value="AdviceWithErin1">AdviceWithErin1</option>
                 <option value="AdviceWithErin2">AdviceWithErin2</option>
+                <option value="Simple.html">Simple</option>
+                <option value="TailwindModern.js">Tailwind Modern</option>
+                <option value="test.html">Test</option>
+                <option value="test-filled.html">Test Filled</option>
               </select>
             </div>
           </div>
@@ -203,18 +248,26 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold mb-4">Your Profile</h2>
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-xl font-bold">{profile.profile.full_name}</h3>
+                    <h3 className="text-xl font-bold">
+                      {profile.profile.full_name}
+                    </h3>
                     <p className="text-gray-400">{profile.profile.email}</p>
                     <p className="text-gray-400">{profile.profile.headline}</p>
-                    <p className="mt-4 text-gray-300">{profile.profile.generic_summary}</p>
+                    <p className="mt-4 text-gray-300">
+                      {profile.profile.generic_summary}
+                    </p>
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold">Work Experience</h4>
                     <ul className="mt-2 space-y-4">
                       {profile.work_experience.map((exp, i) => (
                         <li key={i}>
-                          <p className="font-bold">{exp.job_title} at {exp.company}</p>
-                          <p className="text-sm text-gray-400">{exp.start_date} - {exp.end_date}</p>
+                          <p className="font-bold">
+                            {exp.job_title} at {exp.company}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            {exp.start_date} - {exp.end_date}
+                          </p>
                           <ul className="list-disc list-inside mt-2 text-gray-300">
                             {exp.responsibilities.map((resp, j) => (
                               <li key={j}>{resp}</li>
@@ -230,8 +283,12 @@ export default function Home() {
                       {profile.education.map((edu, i) => (
                         <li key={i}>
                           <p className="font-bold">{edu.institution}</p>
-                          <p className="text-gray-400">{edu.degree} in {edu.field_of_study}</p>
-                          <p className="text-sm text-gray-400">Graduated: {edu.graduation_date}</p>
+                          <p className="text-gray-400">
+                            {edu.degree} in {edu.field_of_study}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            Graduated: {edu.graduation_date}
+                          </p>
                         </li>
                       ))}
                     </ul>
@@ -240,7 +297,10 @@ export default function Home() {
                     <h4 className="text-lg font-semibold">Skills</h4>
                     <ul className="flex flex-wrap gap-2 mt-2">
                       {profile.skills.map((skill, i) => (
-                        <li key={i} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                        <li
+                          key={i}
+                          className="bg-gray-700 px-3 py-1 rounded-full text-sm"
+                        >
                           {skill.skill_name}
                         </li>
                       ))}
@@ -263,18 +323,30 @@ export default function Home() {
                 </div>
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-xl font-bold">{tailoredResume.profile.full_name}</h3>
-                    <p className="text-gray-400">{tailoredResume.profile.email}</p>
-                    <p className="text-gray-400">{tailoredResume.profile.headline}</p>
-                    <p className="mt-4 text-gray-300">{tailoredResume.profile.generic_summary}</p>
+                    <h3 className="text-xl font-bold">
+                      {tailoredResume.profile.full_name}
+                    </h3>
+                    <p className="text-gray-400">
+                      {tailoredResume.profile.email}
+                    </p>
+                    <p className="text-gray-400">
+                      {tailoredResume.profile.headline}
+                    </p>
+                    <p className="mt-4 text-gray-300">
+                      {tailoredResume.profile.generic_summary}
+                    </p>
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold">Work Experience</h4>
                     <ul className="mt-2 space-y-4">
                       {tailoredResume.work_experience.map((exp, i) => (
                         <li key={i}>
-                          <p className="font-bold">{exp.job_title} at {exp.company}</p>
-                          <p className="text-sm text-gray-400">{exp.start_date} - {exp.end_date}</p>
+                          <p className="font-bold">
+                            {exp.job_title} at {exp.company}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            {exp.start_date} - {exp.end_date}
+                          </p>
                           <ul className="list-disc list-inside mt-2 text-gray-300">
                             {exp.responsibilities.map((resp, j) => (
                               <li key={j}>{resp}</li>
@@ -290,8 +362,12 @@ export default function Home() {
                       {tailoredResume.education.map((edu, i) => (
                         <li key={i}>
                           <p className="font-bold">{edu.institution}</p>
-                          <p className="text-gray-400">{edu.degree} in {edu.field_of_study}</p>
-                          <p className="text-sm text-gray-400">Graduated: {edu.graduation_date}</p>
+                          <p className="text-gray-400">
+                            {edu.degree} in {edu.field_of_study}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            Graduated: {edu.graduation_date}
+                          </p>
                         </li>
                       ))}
                     </ul>
@@ -300,7 +376,10 @@ export default function Home() {
                     <h4 className="text-lg font-semibold">Skills</h4>
                     <ul className="flex flex-wrap gap-2 mt-2">
                       {tailoredResume.skills.map((skill, i) => (
-                        <li key={i} className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                        <li
+                          key={i}
+                          className="bg-gray-700 px-3 py-1 rounded-full text-sm"
+                        >
                           {skill.skill_name}
                         </li>
                       ))}
