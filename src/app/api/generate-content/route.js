@@ -21,7 +21,9 @@ export async function POST(request) {
     2. For each 'work_experience' item, rewrite the 'responsibilities' to be 3-5 bullet points that showcase achievements and align with the job description.
     3. Select the most relevant skills from the user's 'skills' list and include them in the 'skills' array.
     4. Ensure the output is a valid JSON object with the same schema as the user's profile data.
-    5. The output JSON schema should be as follows:
+    5. When making any changes, especially adding keywords to job descriptions, ensure they are extremely relevant to the job description. Do not add irrelevant keywords.
+    6. Pay close attention to any [SPECIAL INSTRUCTIONS] provided by the user and follow them carefully.
+    7. The output JSON schema should be as follows:
     {
       "profile": {
         "full_name": "...",

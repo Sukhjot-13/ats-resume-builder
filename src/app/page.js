@@ -1,12 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect, useRef } from "react";
 import userData from "../models/user-data";
-
-const PDFViewer = dynamic(() => import("../components/PDFViewer"), {
-  ssr: false,
-});
 
 const transformData = (parsedData) => {
   const transformed = { ...userData };
@@ -21,10 +16,17 @@ const transformData = (parsedData) => {
     transformed.education = parsedData.education;
   }
   if (parsedData.skills) {
-    transformed.skills = parsedData.skills;
+    if (Array.isArray(parsedData.skills) && parsedData.skills.every(skill => typeof skill === 'string')) {
+      transformed.skills = parsedData.skills.map(skill => ({ skill_name: skill, category: 'Uncategorized' }));
+    } else {
+      transformed.skills = parsedData.skills;
+    }
   }
   if (parsedData.additional_info) {
-    transformed.additional_info = { ...transformed.additional_info, ...parsedData.additional_info };
+    transformed.additional_info = {
+      ...transformed.additional_info,
+      ...parsedData.additional_info,
+    };
   }
 
   return transformed;
@@ -39,16 +41,17 @@ export default function Home() {
   const [tailoredResume, setTailoredResume] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("test.html");
-  const [pdfPreview, setPdfPreview] = useState(null);
   const [downloadingParsed, setDownloadingParsed] = useState(false);
   const [downloadingTailored, setDownloadingTailored] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await fetch("/api/profile");
         const data = await response.json();
-        setProfile(data);
+        const transformedData = transformData(data);
+        setProfile(transformedData);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -115,7 +118,6 @@ export default function Home() {
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        setPdfPreview(url);
 
         const a = document.createElement("a");
         a.href = url;
@@ -177,7 +179,6 @@ export default function Home() {
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        setPdfPreview(url);
 
         const a = document.createElement("a");
         a.href = url;
@@ -223,14 +224,18 @@ export default function Home() {
                   onChange={handleFileUpload}
                   className="hidden"
                   id="resume-upload"
+                  ref={fileInputRef}
                   disabled={parsing}
                 />
-                <label
-                  htmlFor="resume-upload"
-                  className={`cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors ${parsing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                <button
+                  onClick={() => fileInputRef.current.click()}
+                  className={`cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors ${
+                    parsing ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={parsing}
                 >
                   {parsing ? "Parsing..." : "Select a file"}
-                </label>
+                </button>
                 <p className="mt-2 text-sm text-gray-400">PDF or DOCX</p>
               </div>
             </div>
@@ -291,7 +296,9 @@ export default function Home() {
                     className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors disabled:bg-gray-500"
                     disabled={downloadingParsed}
                   >
-                    {downloadingParsed ? 'Downloading...' : 'Download Parsed Resume'}
+                    {downloadingParsed
+                      ? "Downloading..."
+                      : "Download Parsed Resume"}
                   </button>
                 </div>
                 <div className="space-y-6">
@@ -362,11 +369,22 @@ export default function Home() {
                   </div>
                   {profile.additional_info && (
                     <div>
-                      <h4 className="text-lg font-semibold">Additional Information</h4>
+                      <h4 className="text-lg font-semibold">
+                        Additional Information
+                      </h4>
                       <ul className="mt-2 space-y-2">
-                        <li><span className="font-bold">Languages:</span> {profile.additional_info.languages.join(", ")}</li>
-                        <li><span className="font-bold">Certifications:</span> {profile.additional_info.certifications.join(", ")}</li>
-                        <li><span className="font-bold">Awards/Activities:</span> {profile.additional_info.awards_activities.join(", ")}</li>
+                        <li>
+                          <span className="font-bold">Languages:</span>{" "}
+                          {profile.additional_info.languages.join(", ")}
+                        </li>
+                        <li>
+                          <span className="font-bold">Certifications:</span>{" "}
+                          {profile.additional_info.certifications.join(", ")}
+                        </li>
+                        <li>
+                          <span className="font-bold">Awards/Activities:</span>{" "}
+                          {profile.additional_info.awards_activities.join(", ")}
+                        </li>
                       </ul>
                     </div>
                   )}
@@ -383,7 +401,7 @@ export default function Home() {
                     className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition-colors disabled:bg-gray-500"
                     disabled={downloadingTailored}
                   >
-                    {downloadingTailored ? 'Downloading...' : 'Download PDF'}
+                    {downloadingTailored ? "Downloading..." : "Download PDF"}
                   </button>
                 </div>
                 <div className="space-y-6">
@@ -391,11 +409,21 @@ export default function Home() {
                     <h3 className="text-xl font-bold">
                       {tailoredResume.profile.full_name}
                     </h3>
-                    <p className="text-gray-400">{tailoredResume.profile.email}</p>
-                    <p className="text-gray-400">{tailoredResume.profile.phone}</p>
-                    <p className="text-gray-400">{tailoredResume.profile.location}</p>
-                    <p className="text-gray-400">{tailoredResume.profile.website}</p>
-                    <p className="text-gray-400">{tailoredResume.profile.headline}</p>
+                    <p className="text-gray-400">
+                      {tailoredResume.profile.email}
+                    </p>
+                    <p className="text-gray-400">
+                      {tailoredResume.profile.phone}
+                    </p>
+                    <p className="text-gray-400">
+                      {tailoredResume.profile.location}
+                    </p>
+                    <p className="text-gray-400">
+                      {tailoredResume.profile.website}
+                    </p>
+                    <p className="text-gray-400">
+                      {tailoredResume.profile.headline}
+                    </p>
                     <p className="mt-4 text-gray-300">
                       {tailoredResume.profile.generic_summary}
                     </p>
@@ -454,22 +482,30 @@ export default function Home() {
                   </div>
                   {tailoredResume.additional_info && (
                     <div>
-                      <h4 className="text-lg font-semibold">Additional Information</h4>
+                      <h4 className="text-lg font-semibold">
+                        Additional Information
+                      </h4>
                       <ul className="mt-2 space-y-2">
-                        <li><span className="font-bold">Languages:</span> {tailoredResume.additional_info.languages.join(", ")}</li>
-                        <li><span className="font-bold">Certifications:</span> {tailoredResume.additional_info.certifications.join(", ")}</li>
-                        <li><span className="font-bold">Awards/Activities:</span> {tailoredResume.additional_info.awards_activities.join(", ")}</li>
+                        <li>
+                          <span className="font-bold">Languages:</span>{" "}
+                          {tailoredResume.additional_info.languages.join(", ")}
+                        </li>
+                        <li>
+                          <span className="font-bold">Certifications:</span>{" "}
+                          {tailoredResume.additional_info.certifications.join(
+                            ", "
+                          )}
+                        </li>
+                        <li>
+                          <span className="font-bold">Awards/Activities:</span>{" "}
+                          {tailoredResume.additional_info.awards_activities.join(
+                            ", "
+                          )}
+                        </li>
                       </ul>
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-
-            {pdfPreview && (
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-semibold mb-4">PDF Preview</h2>
-                <PDFViewer file={pdfPreview} />
               </div>
             )}
           </div>
