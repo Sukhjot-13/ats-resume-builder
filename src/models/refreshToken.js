@@ -30,4 +30,4 @@ const refreshTokenSchema = new mongoose.Schema({
 // Create a compound index for efficient lookups and to prevent duplicate tokens for the same user
 refreshTokenSchema.index({ userId: 1, token: 1 });
 
-export default mongoose.models.RefreshToken || mongoose.model('RefreshToken', refreshTokenSchema);
+export default (mongoose.models && mongoose.models.RefreshToken) || mongoose.model('RefreshToken', refreshTokenSchema);

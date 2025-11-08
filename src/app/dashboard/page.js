@@ -183,12 +183,6 @@ export default function DashboardPage() {
             Profile
           </button>
           <button
-            onClick={goToResumeHistory}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Resume History
-          </button>
-          <button
             onClick={handleLogout}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
           >

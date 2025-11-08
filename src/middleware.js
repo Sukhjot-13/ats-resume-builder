@@ -1,10 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { jwtVerify, SignJWT } from 'jose';
-import crypto from 'crypto';
-import dbConnect from './lib/mongodb';
-import RefreshToken from './models/refreshToken';
-import User from './models/user';
+import { jwtVerify } from 'jose';
 
 const getSecret = (tokenType) => {
   const secret = tokenType === 'access'
@@ -15,67 +11,52 @@ const getSecret = (tokenType) => {
 };
 
 async function verifyAndRefreshTokens(req) {
+  console.log('--- Verifying tokens ---');
   const accessToken = req.cookies.get('accessToken')?.value;
   const refreshToken = req.cookies.get('refreshToken')?.value;
+  console.log('Access Token present:', !!accessToken);
+  console.log('Refresh Token present:', !!refreshToken);
 
   // 1. Check for valid access token
   if (accessToken) {
     try {
       const { payload } = await jwtVerify(accessToken, getSecret('access'));
+      console.log('Access token is valid');
       return { isValid: true, userId: payload.userId };
     } catch (error) {
-      // Expired or invalid, fall through to refresh
+      console.log('Access token is invalid or expired, falling back to refresh token');
     }
   }
 
   // 2. Check for valid refresh token
   if (!refreshToken) {
+    console.log('No refresh token found');
     return { isValid: false, reason: 'No refresh token' };
   }
 
   try {
-    // 2a. Verify signature
-    const { payload } = await jwtVerify(refreshToken, getSecret('refresh'));
-    const { userId } = payload;
-
-    // 2b. Verify against database
-    await dbConnect();
-    const hashedToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    const tokenDoc = await RefreshToken.findOne({ userId, token: hashedToken });
-
-    if (!tokenDoc) {
-      // Token not in DB, possibly stolen and replayed. Invalidate all tokens for this user.
-      await RefreshToken.deleteMany({ userId });
-      return { isValid: false, reason: 'Token not found in DB', clearCookies: true };
-    }
-
-    if (tokenDoc.expiresAt < new Date()) {
-      await RefreshToken.findByIdAndDelete(tokenDoc._id);
-      return { isValid: false, reason: 'Token expired', clearCookies: true };
-    }
-
-    // 3. ROTATION: Token is valid, rotate it.
-    await RefreshToken.findByIdAndDelete(tokenDoc._id);
-
-    const newAccessToken = await new SignJWT({ userId })
-      .setProtectedHeader({ alg: 'HS256' }).setExpirationTime('15m').sign(getSecret('access'));
-    
-    const newRefreshToken = await new SignJWT({ userId })
-      .setProtectedHeader({ alg: 'HS256' }).setExpirationTime('15d').sign(getSecret('refresh'));
-
-    const newHashedRefreshToken = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
-    await RefreshToken.create({
-      userId,
-      token: newHashedRefreshToken,
-      expiresAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-      ip: req.headers.get('x-forwarded-for') || req.ip,
-      userAgent: req.headers.get('user-agent'),
+    console.log('Attempting to verify refresh token by calling API route');
+    const response = await fetch(new URL('/api/auth/verify-token', req.url), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken }),
     });
+
+    if (!response.ok) {
+      console.log('API route returned an error');
+      return { isValid: false, reason: 'API token verification failed', clearCookies: true };
+    }
+
+    const { newAccessToken, newRefreshToken, userId } = await response.json();
+    console.log('Successfully refreshed and rotated tokens via API route');
 
     return { isValid: true, userId, newAccessToken, newRefreshToken };
 
   } catch (error) {
-    return { isValid: false, reason: 'Refresh JWT verification failed', clearCookies: true };
+    console.error('Error calling verify-token API route:', error);
+    return { isValid: false, reason: 'API call to verify-token failed', clearCookies: true };
   }
 }
 
@@ -101,7 +82,7 @@ export async function middleware(req) {
       }
 
       if (authResult.newAccessToken && authResult.newRefreshToken) {
-        response.cookies.set('accessToken', authResult.newAccessToken, { path: '/', maxAge: 15 * 60, httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        response.cookies.set('accessToken', authResult.newAccessToken, { path: '/', maxAge: 5 * 60, httpOnly: true, secure: process.env.NODE_ENV === 'production' });
         response.cookies.set('refreshToken', authResult.newRefreshToken, { path: '/', maxAge: 15 * 24 * 60 * 60, httpOnly: true, secure: process.env.NODE_ENV === 'production' });
       }
       return response;

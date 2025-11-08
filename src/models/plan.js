@@ -10,4 +10,4 @@ const PlanSchema = new mongoose.Schema({
   // Other plan-specific fields (e.g., price, features) go here
 });
 
-export default mongoose.models.Plan || mongoose.model('Plan', PlanSchema);
+export default (mongoose.models && mongoose.models.Plan) || mongoose.model('Plan', PlanSchema);

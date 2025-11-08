@@ -1,10 +1,17 @@
 
 import { NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
-import crypto from 'crypto';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/user';
 import RefreshToken from '@/models/refreshToken';
+
+async function sha256(string) {
+  const textAsBuffer = new TextEncoder().encode(string);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', textAsBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
 
 export async function POST(req) {
   const { email, otp } = await req.json();
@@ -30,7 +37,7 @@ export async function POST(req) {
 
     const accessToken = await new SignJWT({ userId: user._id.toString() })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('15m')
+      .setExpirationTime('5m')
       .sign(secret);
 
     const refreshToken = await new SignJWT({ userId: user._id.toString() })
@@ -39,7 +46,7 @@ export async function POST(req) {
       .sign(refreshSecret);
 
     // Hash the refresh token
-    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const hashedRefreshToken = await sha256(refreshToken);
 
     // Save the new refresh token to its own collection
     await RefreshToken.create({
@@ -60,7 +67,7 @@ export async function POST(req) {
     // Set cookies
     response.cookies.set('accessToken', accessToken, {
       path: '/',
-      maxAge: 15 * 60, // 15 minutes
+      maxAge: 5 * 60, // 5 minutes
       secure: process.env.NODE_ENV === 'production',
     });
     response.cookies.set('refreshToken', refreshToken, {

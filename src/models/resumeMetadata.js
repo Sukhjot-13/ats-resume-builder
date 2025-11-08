@@ -25,4 +25,4 @@ const ResumeMetadataSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.models.ResumeMetadata || mongoose.model('ResumeMetadata', ResumeMetadataSchema);
+export default (mongoose.models && mongoose.models.ResumeMetadata) || mongoose.model('ResumeMetadata', ResumeMetadataSchema);

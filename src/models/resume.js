@@ -59,4 +59,4 @@ const ResumeSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.models.Resume || mongoose.model('Resume', ResumeSchema);
+export default (mongoose.models && mongoose.models.Resume) || mongoose.model('Resume', ResumeSchema);

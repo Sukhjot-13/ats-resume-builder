@@ -4,9 +4,9 @@ import dbConnect from '@/lib/mongodb';
 import Resume from '@/models/resume';
 import User from '@/models/user';
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   const userId = req.headers.get('x-user-id');
-  const { id } = params;
+  const { id } = await context.params;
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,9 +28,9 @@ export async function GET(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   const userId = req.headers.get('x-user-id');
-  const { id } = params;
+  const { id } = await context.params;
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
