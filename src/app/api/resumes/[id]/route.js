@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Resume from '@/models/resume';
 import User from '@/models/user';
+import ResumeMetadata from '@/models/resumeMetadata';
 
 export async function GET(req, context) {
   const userId = req.headers.get('x-user-id');
@@ -50,6 +51,9 @@ export async function DELETE(req, context) {
     await User.findByIdAndUpdate(userId, {
       $pull: { generatedResumes: id },
     });
+
+    // Delete the associated metadata
+    await ResumeMetadata.findOneAndDelete({ resumeId: id });
 
     return NextResponse.json({ message: 'Resume deleted successfully' });
   } catch (error) {

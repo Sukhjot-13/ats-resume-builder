@@ -62,7 +62,7 @@ async function verifyAndRefreshTokens(req) {
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
-  const isApiRoute = pathname.startsWith('/api/user') || pathname.startsWith('/api/resumes');
+  const isApiRoute = pathname.startsWith('/api/user') || pathname.startsWith('/api/resumes') || pathname.startsWith('/api/edit-resume-with-ai');
   const isProtectedRoute = ['/dashboard', '/profile', '/onboarding'].some(p => pathname.startsWith(p));
   const isLoginPage = pathname === '/login';
 
@@ -109,5 +109,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ['/api/user/:path*', '/api/resumes/:path*', '/dashboard/:path*', '/profile/:path*', '/onboarding/:path*', '/login'],
+  matcher: ['/api/user/:path*', '/api/resumes/:path*', '/api/edit-resume-with-ai/:path*', '/dashboard/:path*', '/profile/:path*', '/onboarding/:path*', '/login'],
 };

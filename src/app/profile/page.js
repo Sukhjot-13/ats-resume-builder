@@ -16,6 +16,9 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState('');
   const [masterResume, setMasterResume] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState('Simple.html');
+  const [showAiEditor, setShowAiEditor] = useState(false);
+  const [aiEditQuery, setAiEditQuery] = useState('');
+  const [editing, setEditing] = useState(false);
   const apiClient = useApiClient();
 
   useEffect(() => {
@@ -119,6 +122,37 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAiEdit = async () => {
+    setEditing(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await apiClient('/api/edit-resume-with-ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ resume: masterResume, query: aiEditQuery }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMasterResume(data);
+        setSuccess('Resume updated successfully with AI!');
+        setShowAiEditor(false);
+        setAiEditQuery('');
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to edit resume with AI.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred during AI edit.');
+    }
+
+    setEditing(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <h1 className="text-4xl font-bold mb-8 text-center">Your Profile</h1>
@@ -159,6 +193,29 @@ export default function ProfilePage() {
                 {loading ? 'Saving...' : 'Save Changes'}
               </button>
             </form>
+            <button
+              onClick={() => setShowAiEditor(!showAiEditor)}
+              className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+            >
+              {showAiEditor ? 'Cancel AI Edit' : 'Edit with AI'}
+            </button>
+            {showAiEditor && (
+              <div className="mt-4">
+                <textarea
+                  className="w-full h-24 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Describe the changes you want to make..."
+                  value={aiEditQuery}
+                  onChange={(e) => setAiEditQuery(e.target.value)}
+                ></textarea>
+                <button
+                  onClick={handleAiEdit}
+                  disabled={editing}
+                  className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
+                >
+                  {editing ? 'Editing...' : 'Submit AI Edit'}
+                </button>
+              </div>
+            )}
           </div>
           <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
           <TemplateSelector selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate} />
