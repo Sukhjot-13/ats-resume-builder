@@ -23,7 +23,7 @@ export default function SpecialInstructionsInput({
         Special Instructions
       </h2>
       <textarea
-        className="w-full h-40 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full h-24 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Add any special instructions for tailoring your resume (e.g., 'Focus on leadership roles', 'Highlight my experience with React.js')..."
         value={specialInstructions}
         onChange={(e) => setSpecialInstructions(e.target.value)}

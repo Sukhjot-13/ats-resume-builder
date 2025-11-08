@@ -3,13 +3,19 @@
 
 import { useState, useEffect } from 'react';
 import { useApiClient } from '@/hooks/useApiClient';
+import ResumeUpload from '@/components/profile/ResumeUpload';
+import ResumePreview from '@/components/preview/ResumePreview';
+import TemplateSelector from '@/components/home/TemplateSelector';
 
 export default function ProfilePage() {
   const [name, setName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [loading, setLoading] = useState(false);
+  const [parsing, setParsing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [masterResume, setMasterResume] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState('Simple.html');
   const apiClient = useApiClient();
 
   useEffect(() => {
@@ -23,6 +29,9 @@ export default function ProfilePage() {
           setName(data.name || '');
           if (data.dateOfBirth) {
             setDateOfBirth(new Date(data.dateOfBirth).toISOString().split('T')[0]);
+          }
+          if (data.mainResume) {
+            setMasterResume(data.mainResume.content);
           }
         } else {
           const data = await response.json();
@@ -65,43 +74,100 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setParsing(true);
+    setError('');
+    setSuccess('');
+
+    const formData = new FormData();
+    formData.append('resumeFile', file);
+
+    try {
+      const response = await apiClient('/api/parse-resume', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSuccess('Resume parsed successfully!');
+        
+        const profileResponse = await apiClient('/api/user/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ mainResume: data }),
+        });
+
+        if (profileResponse.ok) {
+          const updatedUser = await profileResponse.json();
+          setMasterResume(updatedUser.mainResume.content);
+        }
+
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to parse resume.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred during resume parsing.');
+    } finally {
+      setParsing(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Your Profile</h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {success && <p className="text-green-500 mb-4">{success}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="name" className="block mb-2">Name</label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
-            />
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+      <h1 className="text-4xl font-bold mb-8 text-center">Your Profile</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-8">
+          <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full">
+            <h2 className="text-2xl font-bold mb-6 text-center">Your Details</h2>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {success && <p className="text-green-500 mb-4">{success}</p>}
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label htmlFor="name" className="block mb-2">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="dateOfBirth" className="block mb-2">Date of Birth</label>
+                <input
+                  type="date"
+                  id="dateOfBirth"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  required
+                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </form>
           </div>
-          <div className="mb-4">
-            <label htmlFor="dateOfBirth" className="block mb-2">Date of Birth</label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
-              required
-              className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
-          >
-            {loading ? 'Saving...' : 'Save Changes'}
-          </button>
-        </form>
+          <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
+          <TemplateSelector selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate} />
+        </div>
+        <div>
+          {masterResume && (
+            <ResumePreview tailoredResume={masterResume} selectedTemplate={selectedTemplate} />
+          )}
+        </div>
       </div>
     </div>
   );

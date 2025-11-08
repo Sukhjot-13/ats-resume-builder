@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Resume from '@/models/resume';
 import User from '@/models/user';
+import ResumeMetadata from '@/models/resumeMetadata';
 
 export async function GET(req) {
   const userId = req.headers.get('x-user-id');
@@ -14,7 +15,14 @@ export async function GET(req) {
   await dbConnect();
 
   try {
-    const user = await User.findById(userId).populate('generatedResumes').select('generatedResumes');
+    const user = await User.findById(userId).populate({
+      path: 'generatedResumes',
+      populate: {
+        path: 'metadata',
+        model: 'ResumeMetadata'
+      }
+    }).select('generatedResumes');
+    
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -27,7 +35,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   const userId = req.headers.get('x-user-id');
-  const { content } = await req.json();
+  const { content, metadata } = await req.json();
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,6 +59,19 @@ export async function POST(req) {
     await User.findByIdAndUpdate(userId, {
       $push: { generatedResumes: newResume._id },
     });
+
+    if (metadata) {
+      const newMetadata = new ResumeMetadata({
+        userId,
+        resumeId: newResume._id,
+        jobTitle: metadata.jobTitle,
+        companyName: metadata.companyName,
+      });
+      await newMetadata.save();
+
+      newResume.metadata = newMetadata._id;
+      await newResume.save();
+    }
 
     return NextResponse.json(newResume, { status: 201 });
   } catch (error) {

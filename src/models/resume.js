@@ -53,6 +53,10 @@ const ResumeSchema = new mongoose.Schema({
     skills: [SkillSchema],
     additional_info: AdditionalInfoSchema,
   },
+  metadata: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ResumeMetadata',
+  },
   createdAt: {
     type: Date,
     default: Date.now,

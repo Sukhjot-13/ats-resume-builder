@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/user';
 import Resume from '@/models/resume';
+import ResumeMetadata from '@/models/resumeMetadata';
 
 export async function GET(req) {
   const userId = req.headers.get('x-user-id');
@@ -39,6 +40,21 @@ export async function PUT(req) {
       });
       await newResume.save();
       updateData.mainResume = newResume._id;
+      // Add the new resume to the generatedResumes array
+      await User.findByIdAndUpdate(userId, {
+        $push: { generatedResumes: newResume._id },
+      });
+
+      const metadata = new ResumeMetadata({
+        userId,
+        resumeId: newResume._id,
+        jobTitle: 'Master Resume',
+      });
+      await metadata.save();
+
+      newResume.metadata = metadata._id;
+      await newResume.save();
+
     } else if (mainResume && mainResume._id) {
       // If mainResume is an object with an ID, just use the ID
       updateData.mainResume = mainResume._id;
