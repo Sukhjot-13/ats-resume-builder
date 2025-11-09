@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useApiClient } from '@/hooks/useApiClient'; // Assuming useApiClient is available
+import { Button } from '@/components/ui/button';
 
 export default function ResumeHistoryPage() {
   const [resumes, setResumes] = useState([]);
@@ -36,10 +37,10 @@ export default function ResumeHistoryPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
-        <Card className="p-6 text-center">
-          <CardTitle>Loading Resumes...</CardTitle>
-          <CardDescription>Please wait while we fetch your resume history.</CardDescription>
+      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-bg-primary">
+        <Card className="p-6 text-center bg-surface">
+          <CardTitle className="text-accent">Loading Resumes...</CardTitle>
+          <CardDescription className="text-text-muted">Please wait while we fetch your resume history.</CardDescription>
         </Card>
       </div>
     );
@@ -47,7 +48,7 @@ export default function ResumeHistoryPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
+      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-bg-primary">
         <Card className="border-destructive bg-destructive/10 text-destructive p-6 text-center">
           <CardTitle>Error</CardTitle>
           <CardDescription>{error}</CardDescription>
@@ -57,31 +58,31 @@ export default function ResumeHistoryPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-8 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold text-center">Your Resumes</h1>
+    <div className="flex flex-col gap-8 p-8 max-w-7xl mx-auto bg-bg-primary text-text-primary">
+      <h1 className="text-3xl font-bold text-center text-accent">Your Resumes</h1>
       {resumes.length === 0 ? (
-        <Card className="p-6 text-center text-muted-foreground">
-          <CardTitle>No resumes found.</CardTitle>
-          <CardDescription>Start by creating one from your dashboard!</CardDescription>
+        <Card className="p-6 text-center text-text-muted bg-surface">
+          <CardTitle className="text-accent">No resumes found.</CardTitle>
+          <CardDescription className="text-text-muted">Start by creating one from your dashboard!</CardDescription>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {resumes
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .map((resume) => (
-            <Card key={resume._id}>
+            <Card key={resume._id} className="bg-surface">
               <CardHeader>
-                <CardTitle className="text-xl">
+                <CardTitle className="text-xl text-accent">
                   {resume.metadata?.jobTitle || 'Untitled Resume'}
                 </CardTitle>
                 {resume.metadata?.companyName && (
-                  <CardDescription>Company: {resume.metadata.companyName}</CardDescription>
+                  <CardDescription className="text-text-muted">Company: {resume.metadata.companyName}</CardDescription>
                 )}
-                <CardDescription>Created: {new Date(resume.createdAt).toLocaleDateString()}</CardDescription>
+                <CardDescription className="text-text-muted">Created: {new Date(resume.createdAt).toLocaleDateString()}</CardDescription>
               </CardHeader>
               <CardContent>
                 {/* You might want to add a button here to view the resume in detail */}
-                <Button onClick={() => router.push(`/show-resume?id=${resume._id}`)} className="w-full">
+                <Button onClick={() => router.push(`/show-resume?id=${resume._id}`)} className="w-full bg-accent text-brand-primary hover:bg-accent/90">
                   View Resume
                 </Button>
               </CardContent>

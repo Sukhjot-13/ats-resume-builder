@@ -16,6 +16,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { PlusCircle, Trash2, Eye, AlertTriangle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const [jobDescription, setJobDescription] = useState("");
@@ -27,6 +28,7 @@ export default function DashboardPage() {
   const [resumes, setResumes] = useState([]);
   const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const router = useRouter();
   const apiClient = useApiClient();
@@ -60,6 +62,8 @@ export default function DashboardPage() {
         }
       } catch (err) {
         setError("An unexpected error occurred while fetching data.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -139,9 +143,13 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-10 p-4 sm:p-6 md:p-8 max-w-8xl mx-auto bg-bg-primary text-text-primary">
       <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
-        <h1 className="text-4xl font-bold text-accent">
-          Welcome, {currentProfileName}!
-        </h1>
+        {loading ? (
+          <Skeleton className="h-12 w-1/2" />
+        ) : (
+          <h1 className="text-4xl font-bold text-accent">
+            Welcome, {currentProfileName}!
+          </h1>
+        )}
         <p className="text-text-muted mt-2">
           {`Ready to land your dream job? Let"s tailor your resume.`}
         </p>
@@ -200,7 +208,11 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {tailoredResume ? (
+              {generating ? (
+                <div className="flex items-center justify-center p-8 h-96 border-2 border-dashed border-border rounded-lg">
+                  <p className="text-text-muted">Generating your resume...</p>
+                </div>
+              ) : tailoredResume ? (
                 <ResumePreview
                   tailoredResume={tailoredResume}
                   selectedTemplate={selectedTemplate}
@@ -221,7 +233,23 @@ export default function DashboardPage() {
         <h2 className="text-3xl font-bold mb-6 text-accent">
           Your Saved Resumes
         </h2>
-        {resumes.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="shadow-md border-border bg-surface">
+                <CardHeader>
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-1/4" />
+                </CardHeader>
+                <CardContent className="flex gap-2">
+                  <Skeleton className="h-10 flex-1" />
+                  <Skeleton className="h-10 flex-1" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : resumes.length === 0 ? (
           <Card className="p-8 text-center text-text-muted shadow-md border-border bg-surface">
             <PlusCircle className="mx-auto h-12 w-12 mb-4 text-accent" />
             <p>No resumes found. Generate your first resume above!</p>

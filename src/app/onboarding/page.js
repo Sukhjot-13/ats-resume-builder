@@ -58,11 +58,11 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-background">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-bg-primary">
+      <Card className="w-full max-w-md bg-surface">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-accent">Complete Your Profile</CardTitle>
+          <CardDescription className="text-text-muted">
             Please provide your name and date of birth to continue.
           </CardDescription>
         </CardHeader>
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full bg-accent text-brand-primary hover:bg-accent/90" disabled={loading}>
               {loading ? 'Saving...' : 'Save and Continue'}
             </Button>
           </form>

@@ -77,11 +77,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-background">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-bg-primary">
+      <Card className="w-full max-w-md bg-surface">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-accent">Login</CardTitle>
+          <CardDescription className="text-text-muted">
             Enter your email to receive a one-time password.
           </CardDescription>
         </CardHeader>
@@ -100,7 +100,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-accent text-brand-primary hover:bg-accent/90" disabled={loading}>
                 {loading ? 'Sending OTP...' : 'Send OTP'}
               </Button>
             </form>
@@ -117,14 +117,14 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-accent text-brand-primary hover:bg-accent/90" disabled={loading}>
                 {loading ? 'Verifying...' : 'Verify OTP'}
               </Button>
             </form>
           )}
         </CardContent>
         <CardFooter>
-          <p className="text-sm text-muted-foreground text-center w-full">
+          <p className="text-sm text-text-muted text-center w-full">
             By logging in, you agree to our Terms of Service and Privacy Policy.
           </p>
         </CardFooter>

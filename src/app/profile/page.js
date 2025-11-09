@@ -167,8 +167,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-8 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold text-center">Your Profile</h1>
+    <div className="flex flex-col gap-8 p-8 max-w-7xl mx-auto bg-bg-primary text-text-primary">
+      <h1 className="text-3xl font-bold text-center text-accent">Your Profile</h1>
 
       {error && (
         <Card className="border-destructive bg-destructive/10 text-destructive">
@@ -189,10 +189,10 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <Card>
+          <Card className="bg-surface">
             <CardHeader>
-              <CardTitle>Your Details</CardTitle>
-              <CardDescription>Manage your personal information.</CardDescription>
+              <CardTitle className="text-accent">Your Details</CardTitle>
+              <CardDescription className="text-text-muted">Manage your personal information.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="grid gap-4">
@@ -216,7 +216,7 @@ export default function ProfilePage() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full bg-accent text-brand-primary hover:bg-accent/90" disabled={loading}>
                   {loading ? 'Saving...' : 'Save Changes'}
                 </Button>
               </form>
@@ -225,9 +225,9 @@ export default function ProfilePage() {
 
           <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
           
-          <Card>
+          <Card className="bg-surface">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-medium">AI Editor</CardTitle>
+              <CardTitle className="text-lg font-medium text-accent">AI Editor</CardTitle>
               <Switch
                 checked={showAiEditor}
                 onCheckedChange={setShowAiEditor}
@@ -243,13 +243,13 @@ export default function ProfilePage() {
                     onChange={(e) => setAiEditQuery(e.target.value)}
                     className="min-h-[120px]"
                   />
-                  <Button onClick={handleAiEdit} disabled={editing || !masterResume}>
+                  <Button onClick={handleAiEdit} disabled={editing || !masterResume} className="bg-accent text-brand-primary hover:bg-accent/90">
                     {editing ? 'Editing...' : 'Submit AI Edit'}
                   </Button>
                 </div>
               )}
               {!masterResume && showAiEditor && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-muted mt-2">
                   Upload a master resume first to use the AI editor.
                 </p>
               )}
@@ -260,18 +260,18 @@ export default function ProfilePage() {
         </div>
         <div>
           {masterResume ? (
-            <Card>
+            <Card className="bg-surface">
               <CardHeader>
-                <CardTitle>Master Resume Preview</CardTitle>
-                <CardDescription>This is your current master resume.</CardDescription>
+                <CardTitle className="text-accent">Master Resume Preview</CardTitle>
+                <CardDescription className="text-text-muted">This is your current master resume.</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResumePreview tailoredResume={masterResume} selectedTemplate={selectedTemplate} />
               </CardContent>
             </Card>
           ) : (
-            <Card className="flex items-center justify-center p-8 h-full">
-              <CardDescription>Upload a resume to see its preview here.</CardDescription>
+            <Card className="flex items-center justify-center p-8 h-full bg-surface">
+              <CardDescription className="text-text-muted">Upload a resume to see its preview here.</CardDescription>
             </Card>
           )}
         </div>
