@@ -1,11 +1,13 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
-  console.log('LoginPage component rendered');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -20,7 +22,6 @@ export default function LoginPage() {
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    console.log('handleSendOtp called');
     setLoading(true);
     setError('');
 
@@ -32,15 +33,12 @@ export default function LoginPage() {
       });
 
       if (response.ok) {
-        console.log('OTP sent successfully');
         setOtpSent(true);
       } else {
         const data = await response.json();
-        console.error('Failed to send OTP:', data.error);
         setError(data.error || 'Failed to send OTP');
       }
     } catch (err) {
-      console.error('An unexpected error occurred while sending OTP:', err);
       setError('An unexpected error occurred.');
     }
 
@@ -49,7 +47,6 @@ export default function LoginPage() {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    console.log('handleVerifyOtp called');
     setLoading(true);
     setError('');
 
@@ -62,22 +59,17 @@ export default function LoginPage() {
 
       if (response.ok) {
         const { newUser } = await response.json();
-        console.log('OTP verified successfully');
         
         if (newUser) {
-          console.log('New user, redirecting to onboarding...');
           router.push('/onboarding');
         } else {
-          console.log('Existing user, redirecting to dashboard...');
           router.push('/dashboard');
         }
       } else {
         const data = await response.json();
-        console.error('Failed to verify OTP:', data.error);
         setError(data.error || 'Failed to verify OTP');
       }
     } catch (err) {
-      console.error('An unexpected error occurred while verifying OTP:', err);
       setError('An unexpected error occurred.');
     }
 
@@ -85,54 +77,58 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {!otpSent ? (
-          <form onSubmit={handleSendOtp}>
-            <div className="mb-4">
-              <label htmlFor="email" className="block mb-2">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
-            >
-              {loading ? 'Sending...' : 'Send OTP'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp}>
-            <div className="mb-4">
-              <label htmlFor="otp" className="block mb-2">OTP</label>
-              <input
-                type="text"
-                id="otp"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-                className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
-            >
-              {loading ? 'Verifying...' : 'Verify OTP'}
-            </button>
-          </form>
-        )}
-      </div>
+    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-background">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>
+            Enter your email to receive a one-time password.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          {error && <p className="text-destructive text-sm text-center">{error}</p>}
+          {!otpSent ? (
+            <form onSubmit={handleSendOtp} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Sending OTP...' : 'Send OTP'}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="otp">One-Time Password</Label>
+                <Input
+                  id="otp"
+                  type="text"
+                  placeholder="Enter your OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Verifying...' : 'Verify OTP'}
+              </Button>
+            </form>
+          )}
+        </CardContent>
+        <CardFooter>
+          <p className="text-sm text-muted-foreground text-center w-full">
+            By logging in, you agree to our Terms of Service and Privacy Policy.
+          </p>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

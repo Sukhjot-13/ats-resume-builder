@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+
 /**
  * A component for selecting a resume template.
  * @param {object} props - The component's props.
@@ -12,19 +21,20 @@ export default function TemplateSelector({
   setSelectedTemplate,
 }) {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4">Select a Template</h2>
-      <select
-        value={selectedTemplate}
-        onChange={(e) => setSelectedTemplate(e.target.value)}
-        className="w-full bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="test.html">Test</option>
-        <option value="Simple.html">Simple</option>
-        <option value="Professional.html">Professional</option>
-        <option value="Modern.html">Modern</option>
-        <option value="Creative.html">Creative</option>
-      </select>
+    <div className="grid gap-2">
+      <Label htmlFor="template-selector">Select a Template</Label>
+      <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+        <SelectTrigger id="template-selector" className="w-full">
+          <SelectValue placeholder="Select a template" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="test.html">Test</SelectItem>
+          <SelectItem value="Simple.html">Simple</SelectItem>
+          <SelectItem value="Professional.html">Professional</SelectItem>
+          <SelectItem value="Modern.html">Modern</SelectItem>
+          <SelectItem value="Creative.html">Creative</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

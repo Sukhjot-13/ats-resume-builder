@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -6,6 +5,12 @@ import { useApiClient } from '@/hooks/useApiClient';
 import ResumeUpload from '@/components/profile/ResumeUpload';
 import ResumePreview from '@/components/preview/ResumePreview';
 import TemplateSelector from '@/components/home/TemplateSelector';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch"; // Assuming shadcn/ui switch component
 
 export default function ProfilePage() {
   const [name, setName] = useState('');
@@ -77,8 +82,7 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleFileUpload = async (file) => {
     if (!file) return;
 
     setParsing(true);
@@ -109,6 +113,9 @@ export default function ProfilePage() {
         if (profileResponse.ok) {
           const updatedUser = await profileResponse.json();
           setMasterResume(updatedUser.mainResume.content);
+        } else {
+          const errData = await profileResponse.json();
+          setError(errData.error || 'Failed to update profile with new resume.');
         }
 
       } else {
@@ -126,6 +133,12 @@ export default function ProfilePage() {
     setEditing(true);
     setError('');
     setSuccess('');
+
+    if (!masterResume) {
+      setError("Please upload a master resume before attempting AI edits.");
+      setEditing(false);
+      return;
+    }
 
     try {
       const response = await apiClient('/api/edit-resume-with-ai', {
@@ -154,75 +167,112 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Your Profile</h1>
+    <div className="flex flex-col gap-8 p-8 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-center">Your Profile</h1>
+
+      {error && (
+        <Card className="border-destructive bg-destructive/10 text-destructive">
+          <CardContent className="p-4">
+            <p className="font-semibold">Error:</p>
+            <p>{error}</p>
+          </CardContent>
+        </Card>
+      )}
+      {success && (
+        <Card className="border-green-500 bg-green-500/10 text-green-500">
+          <CardContent className="p-4">
+            <p className="font-semibold">Success:</p>
+            <p>{success}</p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-8">
-          <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full">
-            <h2 className="text-2xl font-bold mb-6 text-center">Your Details</h2>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            {success && <p className="text-green-500 mb-4">{success}</p>}
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label htmlFor="name" className="block mb-2">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="dateOfBirth" className="block mb-2">Date of Birth</label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
-                  required
-                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
-              >
-                {loading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </form>
-            <button
-              onClick={() => setShowAiEditor(!showAiEditor)}
-              className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-            >
-              {showAiEditor ? 'Cancel AI Edit' : 'Edit with AI'}
-            </button>
-            {showAiEditor && (
-              <div className="mt-4">
-                <textarea
-                  className="w-full h-24 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Describe the changes you want to make..."
-                  value={aiEditQuery}
-                  onChange={(e) => setAiEditQuery(e.target.value)}
-                ></textarea>
-                <button
-                  onClick={handleAiEdit}
-                  disabled={editing}
-                  className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
-                >
-                  {editing ? 'Editing...' : 'Submit AI Edit'}
-                </button>
-              </div>
-            )}
-          </div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Details</CardTitle>
+              <CardDescription>Manage your personal information.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                  <Input
+                    type="date"
+                    id="dateOfBirth"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
           <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-medium">AI Editor</CardTitle>
+              <Switch
+                checked={showAiEditor}
+                onCheckedChange={setShowAiEditor}
+                id="ai-editor-mode"
+              />
+            </CardHeader>
+            <CardContent>
+              {showAiEditor && (
+                <div className="grid gap-4">
+                  <Textarea
+                    placeholder="Describe the changes you want to make to your master resume (e.g., 'Expand on my project management experience', 'Remove the section about hobbies')..."
+                    value={aiEditQuery}
+                    onChange={(e) => setAiEditQuery(e.target.value)}
+                    className="min-h-[120px]"
+                  />
+                  <Button onClick={handleAiEdit} disabled={editing || !masterResume}>
+                    {editing ? 'Editing...' : 'Submit AI Edit'}
+                  </Button>
+                </div>
+              )}
+              {!masterResume && showAiEditor && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Upload a master resume first to use the AI editor.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
           <TemplateSelector selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate} />
         </div>
         <div>
-          {masterResume && (
-            <ResumePreview tailoredResume={masterResume} selectedTemplate={selectedTemplate} />
+          {masterResume ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Master Resume Preview</CardTitle>
+                <CardDescription>This is your current master resume.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResumePreview tailoredResume={masterResume} selectedTemplate={selectedTemplate} />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="flex items-center justify-center p-8 h-full">
+              <CardDescription>Upload a resume to see its preview here.</CardDescription>
+            </Card>
           )}
         </div>
       </div>

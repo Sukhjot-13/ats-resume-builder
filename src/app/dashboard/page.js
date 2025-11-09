@@ -7,16 +7,26 @@ import JobDescriptionInput from "@/components/home/JobDescriptionInput";
 import SpecialInstructionsInput from "@/components/home/SpecialInstructionsInput";
 import ResumePreview from "@/components/preview/ResumePreview";
 import TemplateSelector from "@/components/home/TemplateSelector";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { PlusCircle, Trash2, Eye, AlertTriangle } from "lucide-react";
 
 export default function DashboardPage() {
   const [jobDescription, setJobDescription] = useState("");
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [generating, setGenerating] = useState(false);
   const [tailoredResume, setTailoredResume] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState("Simple.html"); // Default template
+  const [selectedTemplate, setSelectedTemplate] = useState("Simple.html");
   const [profile, setProfile] = useState(null);
   const [resumes, setResumes] = useState([]);
   const [deletingId, setDeletingId] = useState(null);
+  const [error, setError] = useState(null);
 
   const router = useRouter();
   const apiClient = useApiClient();
@@ -24,59 +34,56 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch profile
+        setError(null);
         const profileResponse = await apiClient("/api/user/profile");
-
         if (profileResponse.ok) {
-          const data = await profileResponse.json();
-          setProfile(data);
+          setProfile(await profileResponse.json());
         } else {
-          console.error("Failed to fetch profile");
+          if (profileResponse.status === 401) {
+            router.push("/login");
+            return;
+          }
+          const errData = await profileResponse.json();
+          setError(errData.error || "Failed to fetch profile");
         }
 
-        // Fetch resumes
         const resumesResponse = await apiClient("/api/resumes");
-
         if (resumesResponse.ok) {
-          const data = await resumesResponse.json();
-          setResumes(data);
+          setResumes(await resumesResponse.json());
         } else {
-          console.error("Failed to fetch resumes");
+          if (resumesResponse.status === 401) {
+            router.push("/login");
+            return;
+          }
+          const errData = await resumesResponse.json();
+          setError(errData.error || "Failed to fetch resumes");
         }
       } catch (err) {
-        console.error("An unexpected error occurred while fetching data.");
+        setError("An unexpected error occurred while fetching data.");
       }
     };
 
     fetchData();
-  }, [apiClient]);
+  }, [apiClient, router]);
 
-  const handleLogout = () => {
-    document.cookie =
-      "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie =
-      "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    router.push("/login");
-  };
-
-  const goToProfile = () => {
-    router.push("/profile");
-  };
-
-  const goToResumeHistory = () => {
-    router.push("/resume-history");
-  };
+  const currentProfileName = profile?.name || profile?.email || "User";
 
   const handleGenerateResume = async () => {
     setGenerating(true);
+    setError(null);
+    if (!profile?.mainResume) {
+      setError(
+        "Please upload your master resume in the profile section first."
+      );
+      setGenerating(false);
+      return;
+    }
     try {
       const generateResponse = await apiClient("/api/generate-content", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          resume: profile.mainResume.content, // Always send the master resume
+          resume: profile.mainResume.content,
           jobDescription,
           specialInstructions,
         }),
@@ -88,123 +95,183 @@ export default function DashboardPage() {
 
         const saveResponse = await apiClient("/api/resumes", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content: resume, metadata }),
         });
 
         if (saveResponse.ok) {
           const newResume = await saveResponse.json();
           setResumes([newResume, ...resumes]);
+        } else {
+          setError(
+            (await saveResponse.json()).error || "Failed to save resume."
+          );
         }
       } else {
-        console.error(
-          "Error generating resume:",
-          await generateResponse.text()
+        setError(
+          (await generateResponse.json()).error || "Error generating resume."
         );
       }
     } catch (error) {
-      console.error("Error generating resume:", error);
+      setError("An unexpected error occurred during resume generation.");
     }
     setGenerating(false);
   };
 
   const handleDeleteResume = async (resumeId) => {
     setDeletingId(resumeId);
+    setError(null);
     try {
       const response = await apiClient(`/api/resumes/${resumeId}`, {
         method: "DELETE",
       });
-
       if (response.ok) {
         setResumes(resumes.filter((resume) => resume._id !== resumeId));
       } else {
-        console.error("Error deleting resume:", await response.text());
+        setError((await response.json()).error || "Error deleting resume.");
       }
     } catch (error) {
-      console.error("Error deleting resume:", error);
+      setError("An unexpected error occurred during resume deletion.");
     }
     setDeletingId(null);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Dashboard</h1>
-        <div className="flex gap-4">
-          <button
-            onClick={goToProfile}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Profile
-          </button>
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Logout
-          </button>
-        </div>
+    <div className="flex flex-col gap-10 p-4 sm:p-6 md:p-8 max-w-8xl mx-auto bg-bg-primary text-text-primary">
+      <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
+        <h1 className="text-4xl font-bold text-accent">
+          Welcome, {currentProfileName}!
+        </h1>
+        <p className="text-text-muted mt-2">
+          {`Ready to land your dream job? Let"s tailor your resume.`}
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-8">
-          <TemplateSelector
-            selectedTemplate={selectedTemplate}
-            setSelectedTemplate={setSelectedTemplate}
-          />
-          <JobDescriptionInput
-            jobDescription={jobDescription}
-            setJobDescription={setJobDescription}
-          />
-          <SpecialInstructionsInput
-            specialInstructions={specialInstructions}
-            setSpecialInstructions={setSpecialInstructions}
-            handleGenerateResume={handleGenerateResume}
-            generating={generating}
-            profile={profile}
-          />
+      {error && (
+        <Card className="border-red-500 bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400">
+          <CardContent className="p-4 flex items-center">
+            <AlertTriangle className="h-5 w-5 mr-3" />
+            <div>
+              <p className="font-semibold">An error occurred:</p>
+              <p>{error}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="shadow-lg border-border bg-surface">
+            <CardHeader>
+              <CardTitle className="text-2xl text-accent">
+                Create Your Resume
+              </CardTitle>
+              <CardDescription className="text-text-muted">
+                Select a template and provide the job details.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <TemplateSelector
+                selectedTemplate={selectedTemplate}
+                setSelectedTemplate={setSelectedTemplate}
+              />
+              <JobDescriptionInput
+                jobDescription={jobDescription}
+                setJobDescription={setJobDescription}
+              />
+              <SpecialInstructionsInput
+                specialInstructions={specialInstructions}
+                setSpecialInstructions={setSpecialInstructions}
+                handleGenerateResume={handleGenerateResume}
+                generating={generating}
+                profile={profile}
+              />
+            </CardContent>
+          </Card>
         </div>
-        <div>
-          {tailoredResume && (
-            <ResumePreview
-              tailoredResume={tailoredResume}
-              selectedTemplate={selectedTemplate}
-            />
-          )}
+        <div className="lg:col-span-3">
+          <Card className="shadow-lg border-border bg-surface h-full">
+            <CardHeader>
+              <CardTitle className="text-2xl text-accent">
+                Tailored Resume Preview
+              </CardTitle>
+              <CardDescription className="text-text-muted">
+                Review your AI-generated resume below.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {tailoredResume ? (
+                <ResumePreview
+                  tailoredResume={tailoredResume}
+                  selectedTemplate={selectedTemplate}
+                />
+              ) : (
+                <div className="flex items-center justify-center p-8 h-96 border-2 border-dashed border-border rounded-lg">
+                  <p className="text-text-muted">
+                    Your tailored resume preview will appear here.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4">Your Saved Resumes</h2>
+        <h2 className="text-3xl font-bold mb-6 text-accent">
+          Your Saved Resumes
+        </h2>
         {resumes.length === 0 ? (
-          <p>No resumes found.</p>
+          <Card className="p-8 text-center text-text-muted shadow-md border-border bg-surface">
+            <PlusCircle className="mx-auto h-12 w-12 mb-4 text-accent" />
+            <p>No resumes found. Generate your first resume above!</p>
+          </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {resumes
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .map((resume) => (
-              <div key={resume._id} className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h3 className="text-xl font-semibold mb-2">
-                  {resume.metadata?.jobTitle || 'Resume'}
-                </h3>
-                {resume.metadata?.companyName && (
-                  <p className="text-gray-400">Company: {resume.metadata.companyName}</p>
-                )}
-                <p className="text-gray-400">Created At: {new Date(resume.createdAt).toLocaleString()}</p>
-                <div className="flex gap-4 mt-4">
-                  <button onClick={() => setTailoredResume(resume.content)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">View</button>
-                  <button
-                    onClick={() => handleDeleteResume(resume._id)}
-                    disabled={deletingId === resume._id}
-                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-gray-500"
-                  >
-                    {deletingId === resume._id ? 'Deleting...' : 'Delete'}
-                  </button>
-                </div>
-              </div>
-            ))}
+                <Card
+                  key={resume._id}
+                  className="shadow-md hover:shadow-xl transition-shadow duration-300 border-border bg-surface"
+                >
+                  <CardHeader>
+                    <CardTitle className="text-xl text-accent">
+                      {resume.metadata?.jobTitle || "Untitled Resume"}
+                    </CardTitle>
+                    {resume.metadata?.companyName && (
+                      <CardDescription className="text-text-muted">
+                        Company: {resume.metadata.companyName}
+                      </CardDescription>
+                    )}
+                    <CardDescription className="text-text-muted">
+                      Created: {new Date(resume.createdAt).toLocaleDateString()}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex gap-2">
+                    <Button
+                      onClick={() => setTailoredResume(resume.content)}
+                      className="flex-1 bg-accent text-brand-primary hover:bg-accent/90"
+                    >
+                      <Eye className="mr-2 h-4 w-4" /> View
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteResume(resume._id)}
+                      disabled={deletingId === resume._id}
+                      className="flex-1"
+                      variant="destructive"
+                    >
+                      {deletingId === resume._id ? (
+                        "Deleting..."
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         )}
       </div>

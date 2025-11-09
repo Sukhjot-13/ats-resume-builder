@@ -1,5 +1,8 @@
 "use client";
 
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
 /**
  * A component for inputting a job description.
  * @param {object} props - The component's props.
@@ -9,14 +12,15 @@
  */
 export default function JobDescriptionInput({ jobDescription, setJobDescription }) {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4">Job Description</h2>
-      <textarea
-        className="w-full h-24 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <div className="grid gap-2">
+      <Label htmlFor="job-description">Job Description</Label>
+      <Textarea
+        id="job-description"
         placeholder="Paste the job description here..."
         value={jobDescription}
         onChange={(e) => setJobDescription(e.target.value)}
-      ></textarea>
+        className="min-h-[120px]"
+      />
     </div>
   );
 }

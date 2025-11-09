@@ -1,26 +1,189 @@
+/* app/globals.css — Tailwind v4 style globals using @theme and CSS variables */
+/* Import Tailwind v4 runtime (single import replaces v3 @tailwind directives) */
 @import "tailwindcss";
 
+/* ---------------------------
+   Theme tokens (light defaults)
+   ---------------------------
+   Define design tokens inside @theme so Tailwind v4 picks them up.
+   You may expand these tokens (spacing, radii, fonts, etc.) as needed.
+*/
+@theme {
+  /* color tokens (use hex or any valid CSS color) */
+  --color-brand-primary: #1C1C1C;
+  --color-brand-secondary: #F0EDE8;
+  --color-text-primary: #1C1C1C;
+  --color-text-muted: #4B4B4B;
+  --color-bg-primary: #FAF9F6;
+  --color-surface: #F0EDE8;
+  --color-border: #E5E2DD;
+  --color-accent: #C9A227;
+  --color-accent-light: #FFD95A;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* ---------------------------
+   Root + .dark overrides
+   ---------------------------
+   Put all light-mode token values in :root and override them in .dark.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Accessibility / motion */
+  --motion-duration: 200ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark-mode token overrides — toggle by adding .dark on <html> or <body> */
+.dark {
+  --color-brand-primary: #000000;
+  --color-brand-secondary: #1a1a1a;
+  --color-text-primary: #f2f2f2;
+  --color-text-muted: #a9a9a9;
+  --color-bg-primary: #000000;
+  --color-surface: #1a1a1a;
+  --color-border: #2c2c2c;
+  --color-accent: #ffbf00;
+  --color-accent-light: #ffd700;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
 }
 
-@media (prefers-color-scheme: dark) {
+/* ---------------------------
+   Custom variant for class-based dark
+   ---------------------------
+   Tailwind v4 prefers prefers-color-scheme by default — use this
+   custom variant to allow using a .dark class to toggle styles.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------
+   Base styles that use tokens
+   --------------------------- */
+@layer base {
+  /* set sensible defaults using the CSS variables */
+  html,
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: light;
+  }
+  .dark,
+  :root:where(.dark) {
+    color-scheme: dark;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--motion-duration) ease,
+      color var(--motion-duration) ease;
+  }
+
+  /* border default */
+  :where(*:not(svg)) {
+    outline-color: var(--color-border);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------------------------
+   Utility helpers that map tokens to simple utility classes
+   (These are optional but make it convenient to use token names in markup.)
+   --------------------------- */
+@layer utilities {
+  /* Backgrounds & surfaces */
+  .bg-bg-primary {
+    background-color: var(--color-bg-primary) !important;
+  }
+  .bg-surface {
+    background-color: var(--color-surface) !important;
+  }
+  .bg-brand-primary {
+    background-color: var(--color-brand-primary) !important;
+  }
+  .bg-brand-secondary {
+    background-color: var(--color-brand-secondary) !important;
+  }
+
+  /* Text colors */
+  .text-text-primary {
+    color: var(--color-text-primary) !important;
+  }
+  .text-muted {
+    color: var(--color-text-muted) !important;
+  }
+  .text-brand-primary {
+    color: var(--color-brand-primary) !important;
+  }
+
+  /* Borders / accents */
+  .border-surface {
+    border-color: var(--color-border) !important;
+  }
+  .ring-accent {
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--color-accent) 20%, transparent) !important;
+  }
+
+  /* Radii & shadows */
+  .rounded-sm {
+    border-radius: var(--radius-sm) !important;
+  }
+  .rounded-md {
+    border-radius: var(--radius-md) !important;
+  }
+  .rounded-lg {
+    border-radius: var(--radius-lg) !important;
+  }
+  .shadow-sm {
+    box-shadow: var(--shadow-sm) !important;
+  }
+  .shadow-md {
+    box-shadow: var(--shadow-md) !important;
+  }
+
+  /* Simple component helpers */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    background-color: var(--color-brand-primary);
+    color: color-contrast(var(--color-brand-primary) vs white, black);
+    border: 1px solid var(--color-border);
+    transition: transform var(--motion-duration) ease,
+      box-shadow var(--motion-duration) ease;
+  }
+
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
 }
+
+/* ---------------------------
+   Example: how to use tokens inside inline utility-like CSS
+   (If you prefer using direct Tailwind classes, you can use
+    the arbitrary value syntax with var(), e.g. bg-[color:var(--color-bg-primary)]
+    — but the small helpers above are convenient.)
+   --------------------------- */
+
+/* Optional: helper for using tokens with arbitrary color utilities in HTML:
+   <div class="bg-[color:var(--color-bg-primary)] text-[color:var(--color-text-primary)]"> */

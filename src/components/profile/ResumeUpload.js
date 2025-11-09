@@ -1,6 +1,9 @@
 "use client";
 
 import { useRef } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input"; // Using Input for styling, but keeping type="file"
 
 /**
  * A component for uploading a resume file.
@@ -12,32 +15,36 @@ import { useRef } from 'react';
 export default function ResumeUpload({ parsing, handleFileUpload }) {
   const fileInputRef = useRef(null);
 
+  const onFileChange = (event) => {
+    handleFileUpload(event.target.files[0]);
+  };
+
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4">
-        Upload Your Resume
-      </h2>
-      <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
-        <input
-          type="file"
-          accept=".pdf,.docx"
-          onChange={handleFileUpload}
-          className="hidden"
-          id="resume-upload"
-          ref={fileInputRef}
-          disabled={parsing}
-        />
-        <button
-          onClick={() => fileInputRef.current.click()}
-          className={`cursor-pointer bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors ${
-            parsing ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={parsing}
-        >
-          {parsing ? "Parsing..." : "Select a file"}
-        </button>
-        <p className="mt-2 text-sm text-gray-400">PDF or DOCX</p>
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Upload Your Resume</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-8 text-center">
+          <Input
+            type="file"
+            accept=".pdf,.docx"
+            onChange={onFileChange}
+            className="hidden"
+            id="resume-upload"
+            ref={fileInputRef}
+            disabled={parsing}
+          />
+          <Button
+            onClick={() => fileInputRef.current.click()}
+            className="cursor-pointer"
+            disabled={parsing}
+          >
+            {parsing ? "Parsing..." : "Select a file"}
+          </Button>
+          <p className="mt-2 text-sm text-muted-foreground">PDF or DOCX</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

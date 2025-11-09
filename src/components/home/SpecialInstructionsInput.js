@@ -1,5 +1,10 @@
 "use client";
 
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react"; // Import icon
+
 /**
  * A component for inputting special instructions and generating a tailored resume.
  * @param {object} props - The component's props.
@@ -18,23 +23,28 @@ export default function SpecialInstructionsInput({
   profile,
 }) {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold mb-4">
-        Special Instructions
-      </h2>
-      <textarea
-        className="w-full h-24 bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <div className="grid gap-2">
+      <Label htmlFor="special-instructions">Special Instructions</Label>
+      <Textarea
+        id="special-instructions"
         placeholder="Add any special instructions for tailoring your resume (e.g., 'Focus on leadership roles', 'Highlight my experience with React.js')..."
         value={specialInstructions}
         onChange={(e) => setSpecialInstructions(e.target.value)}
-      ></textarea>
-      <button
+        className="min-h-[120px]"
+      />
+      <Button
         onClick={handleGenerateResume}
-        className="mt-4 w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-500"
+        className="w-full"
         disabled={generating || !profile}
       >
-        {generating ? "Generating..." : "Generate Tailored Resume"}
-      </button>
+        {generating ? (
+          "Generating..."
+        ) : (
+          <>
+            <PlusCircle className="mr-2 h-4 w-4" /> Generate Tailored Resume
+          </>
+        )}
+      </Button>
     </div>
   );
 }
