@@ -19,7 +19,7 @@ export async function POST(request) {
     return new Response(JSON.stringify(parsedData), { status: 200 });
 
   } catch (error) {
-    logger.error({ file: 'src/app/api/parse-resume/route.js', function: 'POST', error: error.message }, 'Error parsing resume');
+    logger.error({ file: 'src/app/api/parse-resume/route.js', function: 'POST', error: error }, 'Error parsing resume');
     return new Response(error.message || 'Internal Server Error', { status: 500 });
   }
 }

@@ -11,7 +11,7 @@ export async function POST(request) {
     logger.info({ file: 'src/app/api/generate-content/route.js', function: 'POST' }, 'Content generated successfully');
     return NextResponse.json(tailoredData);
   } catch (error) {
-    logger.error({ file: 'src/app/api/generate-content/route.js', function: 'POST', error: error.message }, 'Error generating content');
+    logger.error({ file: 'src/app/api/generate-content/route.js', function: 'POST', error: error }, 'Error generating content');
     return NextResponse.json({ message: error.message || 'Error generating content' }, { status: 500 });
   }
 }

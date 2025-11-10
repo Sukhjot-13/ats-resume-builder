@@ -30,7 +30,7 @@ export async function GET(req, context) {
 
     return NextResponse.json(resume);
   } catch (error) {
-    logger.error({ file: 'src/app/api/resumes/[id]/route.js', function: 'GET', error: error.message }, 'Error fetching resume by ID');
+    logger.error({ file: 'src/app/api/resumes/[id]/route.js', function: 'GET', error: error }, 'Error fetching resume by ID');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -70,7 +70,7 @@ export async function DELETE(req, context) {
     logger.info({ file: 'src/app/api/resumes/[id]/route.js', function: 'DELETE', userId, resumeId: id }, 'Resume deleted successfully');
     return NextResponse.json({ message: 'Resume deleted successfully' });
   } catch (error) {
-    logger.error({ file: 'src/app/api/resumes/[id]/route.js', function: 'DELETE', error: error.message }, 'Error deleting resume by ID');
+    logger.error({ file: 'src/app/api/resumes/[id]/route.js', function: 'DELETE', error: error }, 'Error deleting resume by ID');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

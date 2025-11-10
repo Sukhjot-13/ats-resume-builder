@@ -22,7 +22,7 @@ export async function GET(req) {
     logger.info({ file: 'src/app/api/user/profile/route.js', function: 'GET', userId }, 'User profile fetched successfully');
     return NextResponse.json(user);
   } catch (error) {
-    logger.error({ file: 'src/app/api/user/profile/route.js', function: 'GET', error: error.message }, 'Error fetching user profile');
+    logger.error({ file: 'src/app/api/user/profile/route.js', function: 'GET', error: error }, 'Error fetching user profile');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -84,7 +84,7 @@ export async function PUT(req) {
 
     return NextResponse.json(user);
   } catch (error) {
-    logger.error({ file: 'src/app/api/user/profile/route.js', function: 'PUT', error: error.message }, 'Error updating user profile');
+    logger.error({ file: 'src/app/api/user/profile/route.js', function: 'PUT', error: error }, 'Error updating user profile');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

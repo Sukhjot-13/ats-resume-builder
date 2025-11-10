@@ -43,7 +43,7 @@ export async function POST(req) {
 
     return NextResponse.json(updatedResume.content);
   } catch (error) {
-    logger.error({ file: 'src/app/api/edit-resume-with-ai/route.js', function: 'POST', error: error.message }, 'Edit resume with AI error');
+    logger.error({ file: 'src/app/api/edit-resume-with-ai/route.js', function: 'POST', error: error }, 'Edit resume with AI error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

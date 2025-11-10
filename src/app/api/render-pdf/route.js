@@ -17,7 +17,7 @@ export async function POST(request) {
       },
     });
   } catch (error) {
-    logger.error({ file: 'src/app/api/render-pdf/route.js', function: 'POST', error: error.message }, 'Error generating PDF');
+    logger.error({ file: 'src/app/api/render-pdf/route.js', function: 'POST', error: error }, 'Error generating PDF');
     return new NextResponse('Error generating resume: ' + error.message, { status: 500 });
   }
 }

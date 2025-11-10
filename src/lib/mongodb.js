@@ -31,7 +31,7 @@ async function dbConnect() {
       logger.info({ file: 'src/lib/mongodb.js', function: 'dbConnect' }, 'New MongoDB connection established');
       return mongoose;
     }).catch((error) => {
-      logger.error({ file: 'src/lib/mongodb.js', function: 'dbConnect', error: error.message }, 'Error connecting to MongoDB');
+      logger.error({ file: 'src/lib/mongodb.js', function: 'dbConnect', error: error }, 'Error connecting to MongoDB');
       throw error;
     });
   }

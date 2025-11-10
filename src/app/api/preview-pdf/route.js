@@ -18,7 +18,7 @@ export async function POST(request) {
       },
     });
   } catch (error) {
-    logger.error({ file: 'src/app/api/preview-pdf/route.js', function: 'POST', error: error.message }, 'Error generating PDF preview');
+    logger.error({ file: 'src/app/api/preview-pdf/route.js', function: 'POST', error: error }, 'Error generating PDF preview');
     return new NextResponse('Error generating resume: ' + error.message, { status: 500 });
   }
 }

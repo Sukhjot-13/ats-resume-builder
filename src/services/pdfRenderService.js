@@ -114,7 +114,7 @@ export async function renderPdf(resumeData, template, returnHtml = false) {
 
     return pdfBuffer;
   } catch (error) {
-    logger.error({ file: 'src/services/pdfRenderService.js', function: 'renderPdf', error: error.message }, 'Error rendering PDF');
+    logger.error({ file: 'src/services/pdfRenderService.js', function: 'renderPdf', error: error }, 'Error rendering PDF');
     throw error;
   }
 }

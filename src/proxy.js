@@ -11,31 +11,25 @@ const getSecret = (tokenType) => {
 };
 
 async function verifyAndRefreshTokens(req) {
-  console.log('--- Verifying tokens ---');
   const accessToken = req.cookies.get('accessToken')?.value;
   const refreshToken = req.cookies.get('refreshToken')?.value;
-  console.log('Access Token present:', !!accessToken);
-  console.log('Refresh Token present:', !!refreshToken);
 
   // 1. Check for valid access token
   if (accessToken) {
     try {
       const { payload } = await jwtVerify(accessToken, getSecret('access'));
-      console.log('Access token is valid');
       return { isValid: true, userId: payload.userId };
     } catch (error) {
-      console.log('Access token is invalid or expired, falling back to refresh token');
+      // Access token is invalid or expired, falling back to refresh token
     }
   }
 
   // 2. Check for valid refresh token
   if (!refreshToken) {
-    console.log('No refresh token found');
     return { isValid: false, reason: 'No refresh token' };
   }
 
   try {
-    console.log('Attempting to verify refresh token by calling API route');
     const response = await fetch(new URL('/api/auth/verify-token', req.url), {
       method: 'POST',
       headers: {
@@ -45,17 +39,15 @@ async function verifyAndRefreshTokens(req) {
     });
 
     if (!response.ok) {
-      console.log('API route returned an error');
       return { isValid: false, reason: 'API token verification failed', clearCookies: true };
     }
 
     const { newAccessToken, newRefreshToken, userId } = await response.json();
-    console.log('Successfully refreshed and rotated tokens via API route');
 
     return { isValid: true, userId, newAccessToken, newRefreshToken };
 
   } catch (error) {
-    console.error('Error calling verify-token API route:', error);
+    console.error('Error calling verify-token API route:', error); // Keep this for critical errors
     return { isValid: false, reason: 'API call to verify-token failed', clearCookies: true };
   }
 }

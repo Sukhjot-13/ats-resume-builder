@@ -15,24 +15,28 @@ async function sha256(string) {
 
 export async function POST(req) {
   logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST' }, 'Verify token route triggered');
-  const refreshToken = req.cookies.get('refreshToken')?.value;
-  logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST' }, 'Processing verify token request');
-
-
-  if (!refreshToken) {
-    logger.warn({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST' }, 'Refresh token is required');
-    return NextResponse.json({ error: 'Refresh token is required' }, { status: 400 });
-  }
-
+  
   try {
+    const { refreshToken } = await req.json();
+    logger.debug({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', refreshToken: refreshToken ? 'present' : 'missing' }, 'Extracted refresh token from body');
+    logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST' }, 'Processing verify token request');
+
+    if (!refreshToken) {
+      logger.warn({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST' }, 'Refresh token is required');
+      return NextResponse.json({ error: 'Refresh token is required' }, { status: 400 });
+    }
+
     await dbConnect();
 
     const { payload } = await jwtVerify(refreshToken, new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET));
     const { userId } = payload;
     logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', userId }, 'Refresh token verified');
+    logger.debug({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', payload }, 'Decoded refresh token payload');
 
     const hashedToken = await sha256(refreshToken);
+    logger.debug({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', hashedToken }, 'Hashed refresh token');
     const tokenDoc = await RefreshToken.findOne({ userId, token: hashedToken });
+    logger.debug({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', tokenDoc: tokenDoc ? 'found' : 'not found' }, 'Token document from database');
 
     if (!tokenDoc) {
       await RefreshToken.deleteMany({ userId });
@@ -72,18 +76,10 @@ export async function POST(req) {
     });
     logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', userId }, 'Saved new refresh token to database');
 
-    const response = NextResponse.json({ newAccessToken });
-    response.cookies.set('refreshToken', newRefreshToken, {
-      path: '/',
-      maxAge: 15 * 24 * 60 * 60,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-    });
-
-    return response;
+    return NextResponse.json({ newAccessToken, newRefreshToken, userId });
 
   } catch (error) {
-    logger.error({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', error: error.message }, 'Verify token error');
+    logger.error({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', error: error }, 'Verify token error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

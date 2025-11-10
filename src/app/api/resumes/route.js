@@ -34,7 +34,7 @@ export async function GET(req) {
     logger.info({ file: 'src/app/api/resumes/route.js', function: 'GET', userId, count: user.generatedResumes.length }, 'Resumes fetched successfully');
     return NextResponse.json(user.generatedResumes);
   } catch (error) {
-    logger.error({ file: 'src/app/api/resumes/route.js', function: 'GET', error: error.message }, 'Error fetching resumes');
+    logger.error({ file: 'src/app/api/resumes/route.js', function: 'GET', error: error }, 'Error fetching resumes');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -88,7 +88,7 @@ export async function POST(req) {
 
     return NextResponse.json(newResume, { status: 201 });
   } catch (error) {
-    logger.error({ file: 'src/app/api/resumes/route.js', function: 'POST', error: error.message }, 'Error creating resume');
+    logger.error({ file: 'src/app/api/resumes/route.js', function: 'POST', error: error }, 'Error creating resume');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -17,7 +17,7 @@ export async function GET(request) {
       },
     });
   } catch (error) {
-    logger.error({ file: 'src/app/api/render-test-html/route.js', function: 'GET', error: error.message }, 'Error rendering test HTML');
+    logger.error({ file: 'src/app/api/render-test-html/route.js', function: 'GET', error: error }, 'Error rendering test HTML');
     return new NextResponse('Error generating resume: ' + error.message, { status: 500 });
   }
 }

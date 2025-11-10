@@ -109,7 +109,7 @@ export async function generateTailoredContent(resume, jobDescription, specialIns
     logger.info({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent' }, 'Tailored content parsed successfully');
     return tailoredData;
   } catch (e) {
-    logger.error({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent', error: e.message, aiResponse: text }, 'Error parsing AI generated JSON');
+    logger.error({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent', error: e, aiResponse: text }, 'Error parsing AI generated JSON');
     throw new Error(`AI parsing error: ${text}`);
   }
 }

@@ -18,7 +18,7 @@ async function extractText(fileBuffer, fileType) {
       logger.debug({ file: 'src/services/resumeParsingService.js', function: 'extractText', fileType }, 'Text extracted from PDF');
       return text;
     } catch (error) {
-      logger.error({ file: 'src/services/resumeParsingService.js', function: 'extractText', error: error.message }, 'Error in PDF parsing');
+      logger.error({ file: 'src/services/resumeParsingService.js', function: 'extractText', error: error }, 'Error in PDF parsing');
       throw new Error('Error processing PDF file');
     }
   } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') { // .docx
@@ -115,7 +115,7 @@ export async function parseResume(file) {
     logger.info({ file: 'src/services/resumeParsingService.js', function: 'parseResume' }, 'Resume parsed successfully by AI');
     return parsedData;
   } catch (e) {
-    logger.error({ file: 'src/services/resumeParsingService.js', function: 'parseResume', error: e.message, aiResponse: text }, 'Error parsing AI generated JSON');
+    logger.error({ file: 'src/services/resumeParsingService.js', function: 'parseResume', error: e, aiResponse: text }, 'Error parsing AI generated JSON');
     throw new Error(`AI parsing error: ${text}`);
   }
 }

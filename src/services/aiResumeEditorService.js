@@ -90,7 +90,7 @@ export async function editResumeWithAI(resume, query) {
     logger.info({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI' }, 'AI edited resume parsed successfully');
     return editedData;
   } catch (e) {
-    logger.error({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI', error: e.message, aiResponse: text }, 'Error parsing AI generated JSON');
+    logger.error({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI', error: e, aiResponse: text }, 'Error parsing AI generated JSON');
     throw new Error(`AI parsing error: ${text}`);
   }
 }
