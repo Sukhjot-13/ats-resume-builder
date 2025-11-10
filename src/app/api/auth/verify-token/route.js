@@ -4,6 +4,7 @@ import { SignJWT, jwtVerify } from 'jose';
 import dbConnect from '@/lib/mongodb';
 import RefreshToken from '@/models/refreshToken';
 import logger from '@/lib/logger';
+import { cookies } from 'next/headers';
 
 async function sha256(string) {
   const textAsBuffer = new TextEncoder().encode(string);
@@ -15,7 +16,8 @@ async function sha256(string) {
 
 export async function POST(req) {
   logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST' }, 'Verify token route triggered');
-  const { refreshToken } = await req.json();
+  const cookieStore = cookies();
+  const refreshToken = cookieStore.get('refreshToken')?.value;
   logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST' }, 'Processing verify token request');
 
 

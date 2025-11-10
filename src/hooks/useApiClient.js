@@ -26,16 +26,10 @@ export function useApiClient() {
 
   const refreshTokenFn = useCallback(async () => {
     logger.info({ file: 'src/hooks/useApiClient.js', function: 'refreshToken' }, 'Attempting to refresh token');
-    const currentRefreshToken = getCookie('refreshToken');
-    if (!currentRefreshToken) {
-      logger.warn({ file: 'src/hooks/useApiClient.js', function: 'refreshToken' }, 'No refresh token found');
-      throw new Error('No refresh token');
-    }
 
     const response = await fetch('/api/auth/verify-token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: currentRefreshToken }),
     });
 
     if (!response.ok) {
