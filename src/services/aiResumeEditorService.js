@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import logger from '@/lib/logger';
 
 /**
  * Edits a user's resume based on a natural language query.
@@ -7,6 +8,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  * @returns {Promise<object>} The updated resume data.
  */
 export async function editResumeWithAI(resume, query) {
+  logger.info({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI' }, 'editResumeWithAI function triggered');
+  logger.debug({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI', query }, 'AI edit query received');
   // Construct the prompt for the Gemini API
   let prompt = `
     [TASK]
@@ -79,13 +82,15 @@ export async function editResumeWithAI(resume, query) {
   if (lastBraceIndex !== -1) {
     text = text.substring(0, lastBraceIndex + 1);
   }
+  logger.debug({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI', aiResponse: text }, 'AI generated content');
 
   // Parse the JSON response and return it
   try {
     const editedData = JSON.parse(text);
+    logger.info({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI' }, 'AI edited resume parsed successfully');
     return editedData;
   } catch (e) {
-    console.error('Error parsing JSON:', e);
+    logger.error({ file: 'src/services/aiResumeEditorService.js', function: 'editResumeWithAI', error: e.message, aiResponse: text }, 'Error parsing AI generated JSON');
     throw new Error(`AI parsing error: ${text}`);
   }
 }

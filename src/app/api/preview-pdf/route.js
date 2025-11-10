@@ -1,15 +1,16 @@
 
 import { NextResponse } from 'next/server';
 import { renderPdf } from '../../../services/pdfRenderService';
+import logger from '@/lib/logger';
 
 export async function POST(request) {
-  console.log("Received request for PDF preview");
+  logger.info({ file: 'src/app/api/preview-pdf/route.js', function: 'POST' }, 'PDF preview route triggered');
   try {
     const { resumeData, template } = await request.json();
-    console.log("Resume data for PDF preview:", JSON.stringify(resumeData, null, 2));
-    console.log("Template for PDF preview:", template);
+    logger.info({ file: 'src/app/api/preview-pdf/route.js', function: 'POST', template }, 'Generating PDF preview');
 
     const pdfBuffer = await renderPdf(resumeData, template);
+    logger.info({ file: 'src/app/api/preview-pdf/route.js', function: 'POST', template }, 'PDF preview generated successfully');
 
     return new NextResponse(pdfBuffer, {
       headers: {
@@ -17,7 +18,7 @@ export async function POST(request) {
       },
     });
   } catch (error) {
-    console.error("Error generating PDF preview:", error);
+    logger.error({ file: 'src/app/api/preview-pdf/route.js', function: 'POST', error: error.message }, 'Error generating PDF preview');
     return new NextResponse('Error generating resume: ' + error.message, { status: 500 });
   }
 }

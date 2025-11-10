@@ -4,6 +4,7 @@ import { SignJWT } from 'jose';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/user';
 import RefreshToken from '@/models/refreshToken';
+import logger from '@/lib/logger';
 
 async function sha256(string) {
   const textAsBuffer = new TextEncoder().encode(string);
@@ -14,9 +15,12 @@ async function sha256(string) {
 }
 
 export async function POST(req) {
+  logger.info({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST' }, 'Verify OTP route triggered');
   const { email, otp } = await req.json();
+  logger.info({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', email }, 'Processing verify OTP request for email');
 
   if (!email || !otp) {
+    logger.warn({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST' }, 'Email and OTP are required');
     return NextResponse.json({ error: 'Email and OTP are required' }, { status: 400 });
   }
 
@@ -26,6 +30,7 @@ export async function POST(req) {
     const user = await User.findOne({ email });
 
     if (!user || user.otp !== otp || Date.now() > user.otpExpires) {
+      logger.warn({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', email }, 'Invalid or expired OTP');
       return NextResponse.json({ error: 'Invalid or expired OTP' }, { status: 400 });
     }
 
@@ -44,6 +49,8 @@ export async function POST(req) {
       .setProtectedHeader({ alg: 'HS256' })
       .setExpirationTime('15d')
       .sign(refreshSecret);
+    
+    logger.info({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', userId: user._id }, 'Generated access and refresh tokens');
 
     // Hash the refresh token
     const hashedRefreshToken = await sha256(refreshToken);
@@ -56,11 +63,13 @@ export async function POST(req) {
       ip: req.headers.get('x-forwarded-for') || req.ip,
       userAgent: req.headers.get('user-agent'),
     });
+    logger.info({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', userId: user._id }, 'Saved refresh token to database');
 
     // Remove OTP fields from user
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
+    logger.info({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', userId: user._id }, 'Cleared OTP from user document');
 
     const response = NextResponse.json({ newUser });
 
@@ -79,7 +88,7 @@ export async function POST(req) {
 
     return response;
   } catch (error) {
-    console.error(error);
+    logger.error({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', error: error.message }, 'Verify OTP error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

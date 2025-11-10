@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import logger from '@/lib/logger';
 
 /**
  * Generates tailored resume content based on a user's resume, a job description, and special instructions.
@@ -8,6 +9,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  * @returns {Promise<object>} The tailored resume data and metadata.
  */
 export async function generateTailoredContent(resume, jobDescription, specialInstructions) {
+  logger.info({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent' }, 'generateTailoredContent function triggered');
+  logger.debug({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent', jobDescription, specialInstructions }, 'Content generation request received');
   // Construct the prompt for the Gemini API
   let prompt = `
     [TASK]
@@ -98,13 +101,15 @@ export async function generateTailoredContent(resume, jobDescription, specialIns
   if (lastBraceIndex !== -1) {
     text = text.substring(0, lastBraceIndex + 1);
   }
+  logger.debug({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent', aiResponse: text }, 'AI generated content');
 
   // Parse the JSON response and return it
   try {
     const tailoredData = JSON.parse(text);
+    logger.info({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent' }, 'Tailored content parsed successfully');
     return tailoredData;
   } catch (e) {
-    console.error('Error parsing JSON:', e);
+    logger.error({ file: 'src/services/contentGenerationService.js', function: 'generateTailoredContent', error: e.message, aiResponse: text }, 'Error parsing AI generated JSON');
     throw new Error(`AI parsing error: ${text}`);
   }
 }

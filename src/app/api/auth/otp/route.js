@@ -1,13 +1,16 @@
-
 import { NextResponse } from 'next/server';
 import * as Brevo from '@getbrevo/brevo';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/user';
+import logger from '@/lib/logger';
 
 export async function POST(req) {
+  logger.info({ file: 'src/app/api/auth/otp/route.js', function: 'POST' }, 'OTP route triggered');
   const { email } = await req.json();
+  logger.info({ file: 'src/app/api/auth/otp/route.js', function: 'POST', email }, 'Processing OTP request for email');
 
   if (!email) {
+    logger.warn({ file: 'src/app/api/auth/otp/route.js', function: 'POST' }, 'Email is required');
     return NextResponse.json({ error: 'Email is required' }, { status: 400 });
   }
 
@@ -23,8 +26,10 @@ export async function POST(req) {
       user.otp = otp;
       user.otpExpires = otpExpires;
       await user.save();
+      logger.info({ file: 'src/app/api/auth/otp/route.js', function: 'POST', email }, 'Updated OTP for existing user');
     } else {
       user = await User.create({ email, otp, otpExpires });
+      logger.info({ file: 'src/app/api/auth/otp/route.js', function: 'POST', email }, 'Created new user and generated OTP');
     }
 
     const apiInstance = new Brevo.TransactionalEmailsApi();
@@ -38,10 +43,11 @@ export async function POST(req) {
     sendSmtpEmail.to = [{ email }];
 
     await apiInstance.sendTransacEmail(sendSmtpEmail);
+    logger.info({ file: 'src/app/api/auth/otp/route.js', function: 'POST', email }, 'OTP sent successfully');
 
     return NextResponse.json({ message: 'OTP sent successfully' });
   } catch (error) {
-    console.error('OTP sending error:', error);
+    logger.error({ file: 'src/app/api/auth/otp/route.js', function: 'POST', error: error.message }, 'OTP sending error');
     return NextResponse.json({ error: 'Failed to send OTP' }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 
 import mongoose from 'mongoose';
+import logger from '@/lib/logger';
 
 const ProfileSchema = new mongoose.Schema({
   full_name: String,
@@ -63,4 +64,12 @@ const ResumeSchema = new mongoose.Schema({
   },
 });
 
-export default (mongoose.models && mongoose.models.Resume) || mongoose.model('Resume', ResumeSchema);
+const Resume = (mongoose.models && mongoose.models.Resume) || mongoose.model('Resume', ResumeSchema);
+
+if (!mongoose.models || !mongoose.models.Resume) {
+  logger.info({ file: 'src/models/resume.js' }, 'Resume model compiled');
+} else {
+  logger.info({ file: 'src/models/resume.js' }, 'Resume model retrieved from cache');
+}
+
+export default Resume;

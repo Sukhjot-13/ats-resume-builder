@@ -1,5 +1,6 @@
 
 import mongoose from 'mongoose';
+import logger from '@/lib/logger';
 
 const ResumeMetadataSchema = new mongoose.Schema({
   userId: {
@@ -25,4 +26,12 @@ const ResumeMetadataSchema = new mongoose.Schema({
   },
 });
 
-export default (mongoose.models && mongoose.models.ResumeMetadata) || mongoose.model('ResumeMetadata', ResumeMetadataSchema);
+const ResumeMetadata = (mongoose.models && mongoose.models.ResumeMetadata) || mongoose.model('ResumeMetadata', ResumeMetadataSchema);
+
+if (!mongoose.models || !mongoose.models.ResumeMetadata) {
+  logger.info({ file: 'src/models/resumeMetadata.js' }, 'ResumeMetadata model compiled');
+} else {
+  logger.info({ file: 'src/models/resumeMetadata.js' }, 'ResumeMetadata model retrieved from cache');
+}
+
+export default ResumeMetadata;

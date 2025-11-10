@@ -1,5 +1,6 @@
 
 import mongoose from 'mongoose';
+import logger from '@/lib/logger';
 
 const refreshTokenSchema = new mongoose.Schema({
   userId: { 
@@ -30,4 +31,12 @@ const refreshTokenSchema = new mongoose.Schema({
 // Create a compound index for efficient lookups and to prevent duplicate tokens for the same user
 refreshTokenSchema.index({ userId: 1, token: 1 });
 
-export default (mongoose.models && mongoose.models.RefreshToken) || mongoose.model('RefreshToken', refreshTokenSchema);
+const RefreshToken = (mongoose.models && mongoose.models.RefreshToken) || mongoose.model('RefreshToken', refreshTokenSchema);
+
+if (!mongoose.models || !mongoose.models.RefreshToken) {
+  logger.info({ file: 'src/models/refreshToken.js' }, 'RefreshToken model compiled');
+} else {
+  logger.info({ file: 'src/models/refreshToken.js' }, 'RefreshToken model retrieved from cache');
+}
+
+export default RefreshToken;

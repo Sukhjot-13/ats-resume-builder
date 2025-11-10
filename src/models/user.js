@@ -1,5 +1,6 @@
 
 import mongoose from 'mongoose';
+import logger from '@/lib/logger';
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -41,5 +42,12 @@ const UserSchema = new mongoose.Schema({
   }],
 });
 
-export default (mongoose.models && mongoose.models.User) || mongoose.model('User', UserSchema);
+const User = (mongoose.models && mongoose.models.User) || mongoose.model('User', UserSchema);
 
+if (!mongoose.models || !mongoose.models.User) {
+  logger.info({ file: 'src/models/user.js' }, 'User model compiled');
+} else {
+  logger.info({ file: 'src/models/user.js' }, 'User model retrieved from cache');
+}
+
+export default User;
