@@ -1,162 +1,134 @@
-# ATS-Friendly Resume Builder
+# ATS-Resume-Builder
 
-This project is an AI-powered resume builder that helps users create ATS-friendly resumes tailored to specific job descriptions. It uses a "Upload -> Parse -> Store -> Tailor" workflow to provide a seamless user experience.
+This is a Next.js application designed to help users create ATS-friendly resumes. It provides features for parsing existing resumes, generating tailored content using AI, and rendering resumes in different templates.
 
-## Project Overview
+## Features
 
-The application will guide users through the following workflow:
-
-1.  **Upload:** Users upload their existing resume in PDF or DOCX format.
-2.  **Parse:** The application parses the resume using an AI model (Google Gemini) to extract structured data.
-3.  **Store:** The parsed data is stored in a "Master Profile" which the user can review and edit.
-4.  **Tailor:** Users can then paste a job description, and the AI will tailor the resume content to match the requirements of the job.
-5.  **Render:** The user can select a template and render the tailored resume as a PDF.
-
-The goal is to implement a robust authentication and user management system, store user data and resumes in a MongoDB database, and provide a history of generated resumes.
+*   **Resume Parsing:** Users can upload their existing resume (PDF or DOCX) and the application will parse it to extract structured data.
+*   **AI-Powered Content Generation:** The application uses a generative AI model to tailor resume content for specific job descriptions.
+*   **Resume Editing with AI:** Users can edit their resume using natural language queries.
+*   **Multiple Resume Templates:** The application provides several resume templates (Simple, Modern, Creative, Professional) to choose from.
+* `PLAN.md` is a file that contains the plan for the project.
+*   **PDF Rendering:** Users can preview and download their resume as a PDF.
+*   **Authentication:** The application uses a JWT-based authentication system with OTP (One-Time Password) verification via email.
 
 ## Tech Stack
 
--   **Framework:** Next.js 14 (App Router)
--   **Database:** MongoDB
--   **ODM:** Mongoose
--   **Authentication:** JSON Web Tokens (JWT) with email OTP
--   **AI Engine:** Google Gemini API
--   **Email Service:** Brevo
--   **PDF Generation:** `@react-pdf/renderer`, `puppeteer`
--   **File Parsing:** `pdf-parse`, `mammoth`, `formidable`, `unpdf`
--   **Hosting:** Vercel
+*   **Framework:** [Next.js](https://nextjs.org/)
+*   **Database:** [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
+*   **AI:** [Google Generative AI (Gemini)](https://ai.google.dev/)
+*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+*   **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
+*   **PDF Generation:** [Puppeteer](https://pptr.dev/)
+*   **File Parsing:** [mammoth](https://www.npmjs.com/package/mammoth) (for .docx), [unpdf](https://www.npmjs.com/package/unpdf) (for .pdf)
+*   **Email:** [Brevo](https://www.brevo.com/)
 
-## Getting Started
+## Project Structure
 
-### Prerequisites
+The project follows a standard Next.js `src` directory structure.
 
-- Node.js and npm
-- MongoDB instance
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Set up environment variables:
-   Create a `.env.local` file in the root of the project and add the following variables:
-   ```
-   MONGODB_URI=<your-mongodb-connection-string>
-   BREVO_API_KEY=<your-brevo-api-key>
-   BREVO_SENDER_EMAIL=<your-brevo-sender-email>
-   JWT_SECRET=<your-jwt-secret>
-   ```
-4. Run the development server:
-    ```bash
-    npm run dev
-    ```
-
-## Database Schema
-
-We use three main collections in MongoDB:
-
-### `users`
-
-This collection will store user information.
-
-```javascript
-{
-  _id: ObjectId,
-  email: { type: String, required: true, unique: true },
-  name: { type: String },
-  dateOfBirth: { type: Date },
-  role: { type: Number, default: 100 }, // 0: owner, 100: user
-  plan: { type: ObjectId, ref: 'Plan' },
-  createdAt: { type: Date, default: Date.now },
-}
+```
+/
+├── public/ # Static assets
+├── src/
+│   ├── app/ # Next.js App Router
+│   │   ├── api/ # API routes
+│   │   ├── (pages)/ # Page components
+│   │   └── layout.js # Root layout
+│   ├── components/ # React components
+│   │   ├── resume-templates/ # HTML templates for resumes
+│   │   └── ui/ # UI components from shadcn/ui
+│   ├── hooks/ # Custom React hooks
+│   ├── lib/ # Library functions (e.g., database connection)
+│   ├── models/ # Mongoose models
+│   └── services/ # Business logic services
+├── .env.local # Environment variables
+└── package.json # Project dependencies
 ```
 
-### `resumes`
+### `src/models`
 
-This collection will store the actual resume content as a JSON object.
+This directory contains the Mongoose schemas for the database models:
 
-```javascript
-{
-  _id: ObjectId,
-  userId: { type: ObjectId, ref: 'User', required: true },
-  content: { type: Object, required: true }, // The full resume object
-  createdAt: { type: Date, default: Date.now },
-}
-```
+*   `plan.js`: Defines the schema for user plans.
+*   `refreshToken.js`: Stores refresh tokens for authentication.
+*   `resume.js`: Defines the main schema for resume data.
+*   `resumeMetadata.js`: Stores metadata associated with a resume (e.g., job title, company name).
+*   `user.js`: Defines the schema for user accounts.
 
-### `resume_metadata`
+### `src/services`
 
-This collection will store metadata about each generated resume.
+This directory contains the core business logic of the application:
 
-```javascript
-{
-  _id: ObjectId,
-  userId: { type: ObjectId, ref: 'User', required: true },
-  resumeId: { type: ObjectId, ref: 'Resume', required: true },
-  jobTitle: { type: String, required: true },
-  companyName: { type: String },
-  createdAt: { type: Date, default: Date.now },
-}
-```
-
-### `plans`
-
-This collection will store information about the different user plans.
-
-```javascript
-{
-  _id: ObjectId,
-  name: { type: String, required: true, unique: true },
-  // Other plan-specific fields (e.g., price, features) go here
-}
-```
-
-## Authentication Flow
-
-### Passwordless Login/Registration
-
-1.  User enters their email address.
-2.  The backend generates a 6-digit OTP and temporarily stores it.
-3.  An email with the OTP is sent to the user via Brevo.
-4.  User enters the OTP on the frontend.
-5.  The backend verifies the OTP.
-6.  If the user already exists, the backend generates an access token and a refresh token and sends them to the frontend.
-7.  If the user does not exist, they are prompted to enter their profile information. Upon submission, a new user is created, tokens are generated, and the user is redirected to the dashboard.
-
-### Token Refresh
-
-1.  When the access token expires, the frontend sends the refresh token to the `/api/auth/refresh-token` endpoint.
-2.  The backend verifies the refresh token and issues a new access token.
+*   `aiResumeEditorService.js`: Handles editing resumes with AI.
+*   `contentGenerationService.js`: Generates tailored resume content using AI.
+*   `pdfRenderService.js`: Renders resumes to PDF using Puppeteer.
+*   `resumeParsingService.js`: Parses resume files (PDF, DOCX) to extract text and structured data.
 
 ## API Endpoints
 
--   `POST /api/auth/otp`: Sends an OTP to the user's email.
--   `POST /api/auth/verify-otp`: Verifies the OTP and logs in or registers the user.
--   `GET /api/auth/verify-token`: Verifies the access token.
--   `GET, PUT /api/user/profile`: To get and update the current user's profile.
--   `POST /api/edit-resume-with-ai`: Edits a resume using AI.
--   `POST /api/generate-content`: Generates tailored resume content based on a job description.
--   `POST /api/parse-resume`: Parses an uploaded resume (PDF or DOCX).
--   `GET /api/preview-pdf`: Previews a PDF.
--   `POST /api/render-pdf`: Renders a resume as a PDF.
--   `GET /api/render-test-html`: Renders a test HTML page.
--   `GET, POST /api/resumes`: To get the list of the user's resumes and to save a new resume.
--   `GET /api/resumes/[id]`: To get a specific resume by ID.
+The API endpoints are defined in the `src/app/api` directory.
 
-## Future Improvements & To-Do
+### Authentication
 
--   **Implement User Plans:** Define and implement different user plans with varying features and limitations.
--   **Token Refresh Endpoint:** The `/api/auth/refresh-token` endpoint is not yet implemented.
--   **Logout Endpoint:** Implement a `/api/auth/logout` endpoint to invalidate refresh tokens.
--   **Extract business logic into custom hooks:**
-    -   Create a `useProfile.js` hook to manage the profile state and the logic for fetching and updating the profile.
-    -   Create other custom hooks for managing job description, special instructions, tailored resume, etc.
--   **Clickable links in generated PDFs:** Make links in the generated PDFs clickable.
--   **Admin Configuration:** In the future, an admin interface will be developed to allow for the configuration of application settings, such as token expiration times.
--   **Frontend Components:**
-    -   `PlanSelector.js`: A component to allow users to select a plan.
+*   `POST /api/auth/otp`: Sends an OTP to the user's email.
+*   `POST /api/auth/verify-otp`: Verifies the OTP and returns JWT access and refresh tokens.
+*   `POST /api/auth/verify-token`: Verifies the refresh token and returns a new access token.
+*   `POST /api/auth/logout`: Clears the authentication cookies.
+
+### Resumes
+
+*   `GET /api/resumes`: Retrieves all resumes for the authenticated user.
+*   `POST /api/resumes`: Creates a new resume for the authenticated user.
+*   `GET /api/resumes/[id]`: Retrieves a specific resume by its ID.
+*   `DELETE /api/resumes/[id]`: Deletes a specific resume by its ID.
+
+### User
+
+*   `GET /api/user/profile`: Retrieves the profile of the authenticated user.
+*   `PUT /api/user/profile`: Updates the profile of the authenticated user.
+
+### AI & PDF
+
+*   `POST /api/parse-resume`: Parses an uploaded resume file.
+*   `POST /api/generate-content`: Generates tailored resume content.
+*   `POST /api/edit-resume-with-ai`: Edits a resume using an AI query.
+*   `POST /api/preview-pdf`: Generates a PDF preview of a resume.
+*   `POST /api/render-pdf`: Generates a downloadable PDF of a resume.
+
+## Authentication Flow
+
+1.  The user enters their email address.
+2.  The application sends a `POST` request to `/api/auth/otp`.
+3.  The server generates a 6-digit OTP, saves it to the user's record in the database, and emails it to the user.
+4.  The user enters the OTP.
+5.  The application sends a `POST` request to `/api/auth/verify-otp` with the email and OTP.
+6.  The server verifies the OTP. If it's valid, it generates a short-lived JWT access token and a long-lived refresh token.
+7.  The access token is stored in a cookie and sent with subsequent requests to protected API routes.
+8.  When the access token expires, the client sends the refresh token to `/api/auth/verify-token` to get a new access token.
+
+## Getting Started
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/ats-resume-builder.git
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Set up environment variables:**
+    Create a `.env.local` file in the root of the project and add the following environment variables:
+    ```
+    BREVO_API_KEY=
+    BREVO_SENDER_EMAIL=
+    GEMINI_API_KEY=
+    MONGODB_URI=
+    ACCESS_TOKEN_SECRET=
+    REFRESH_TOKEN_SECRET=
+    ```
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    The application will be available at `http://localhost:3000`.

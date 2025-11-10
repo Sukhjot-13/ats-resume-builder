@@ -10,15 +10,15 @@
 */
 @theme {
   /* color tokens (use hex or any valid CSS color) */
-  --color-brand-primary: #1C1C1C;
-  --color-brand-secondary: #F0EDE8;
-  --color-text-primary: #1C1C1C;
-  --color-text-muted: #4B4B4B;
-  --color-bg-primary: #FAF9F6;
-  --color-surface: #F0EDE8;
-  --color-border: #E5E2DD;
-  --color-accent: #C9A227;
-  --color-accent-light: #FFD95A;
+  --color-brand-primary: #1c1c1c;
+  --color-brand-secondary: #f0ede8;
+  --color-text-primary: #1c1c1c;
+  --color-text-muted: #4b4b4b;
+  --color-bg-primary: #faf9f6;
+  --color-surface: #f0ede8;
+  --color-border: #e5e2dd;
+  --color-accent: #c9a227;
+  --color-accent-light: #ffd95a;
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
@@ -189,7 +189,8 @@
    <div class="bg-[color:var(--color-bg-primary)] text-[color:var(--color-text-primary)]"> */
 
 @keyframes pulse-color {
-  0%, 100% {
+  0%,
+  100% {
     background-color: hsl(var(--surface) / 0.5);
   }
   50% {
@@ -199,4 +200,52 @@
 
 .animate-pulse-color {
   animation: pulse-color 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.loading07 {
+  display: inline-block;
+}
+
+.loading07 span {
+  position: relative;
+  font: inherit; /* Inherit all font properties */
+}
+
+.loading07 span::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: attr(data-text);
+  color: currentColor;
+  opacity: 0;
+  transform: scale(1.5);
+  animation: loading07 3s infinite;
+}
+
+.loading07 span:nth-child(1)::after { animation-delay: 0.0s; }
+.loading07 span:nth-child(2)::after { animation-delay: 0.1s; }
+.loading07 span:nth-child(3)::after { animation-delay: 0.2s; }
+.loading07 span:nth-child(4)::after { animation-delay: 0.3s; }
+.loading07 span:nth-child(5)::after { animation-delay: 0.4s; }
+.loading07 span:nth-child(6)::after { animation-delay: 0.5s; }
+.loading07 span:nth-child(7)::after { animation-delay: 0.6s; }
+.loading07 span:nth-child(8)::after { animation-delay: 0.7s; }
+.loading07 span:nth-child(9)::after { animation-delay: 0.8s; }
+.loading07 span:nth-child(10)::after { animation-delay: 0.9s; }
+.loading07 span:nth-child(11)::after { animation-delay: 1.0s; }
+.loading07 span:nth-child(12)::after { animation-delay: 1.1s; }
+.loading07 span:nth-child(13)::after { animation-delay: 1.2s; }
+.loading07 span:nth-child(14)::after { animation-delay: 1.3s; }
+.loading07 span:nth-child(15)::after { animation-delay: 1.4s; }
+
+
+@keyframes loading07 {
+  0%, 75%, 100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  25%, 50% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

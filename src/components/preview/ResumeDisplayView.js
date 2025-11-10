@@ -3,7 +3,7 @@
 
 export default function ResumeDisplayView({ resumeData }) {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg h-full overflow-y-auto text-white">
+    <div className="bg-bg-primary p-6 rounded-lg shadow-lg h-full overflow-y-auto text-text-primary">
       <div className="space-y-6">
         <div>
           <h3 className="text-xl font-bold">

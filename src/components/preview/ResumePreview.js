@@ -48,7 +48,7 @@ export default function ResumePreview({ tailoredResume, selectedTemplate }) {
   }
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+    <div className="bg-surface p-6 rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Resume Preview</h2>
         <button
@@ -62,24 +62,24 @@ export default function ResumePreview({ tailoredResume, selectedTemplate }) {
       <div className="flex mb-4">
         <button
           onClick={() => setView('display')}
-          className={`px-4 py-2 rounded-l-lg ${view === 'display' ? 'bg-blue-600' : 'bg-gray-700'}`}
+          className={`px-4 py-2 rounded-l-lg ${view === 'display' ? 'bg-accent text-brand-primary' : 'bg-surface text-text-primary'}`}
         >
           Display View
         </button>
         <button
           onClick={() => setView('text')}
-          className={`px-4 py-2 ${view === 'text' ? 'bg-blue-600' : 'bg-gray-700'}`}
+          className={`px-4 py-2 ${view === 'text' ? 'bg-accent text-brand-primary' : 'bg-surface text-text-primary'}`}
         >
           Text View
         </button>
         <button
           onClick={() => setView('pdf')}
-          className={`px-4 py-2 rounded-r-lg ${view === 'pdf' ? 'bg-blue-600' : 'bg-gray-700'}`}
+          className={`px-4 py-2 rounded-r-lg ${view === 'pdf' ? 'bg-accent text-brand-primary' : 'bg-surface text-text-primary'}`}
         >
           PDF View
         </button>
       </div>
-      <div className="w-full h-96 bg-white">
+      <div className="w-full h-96 bg-bg-primary">
         {view === 'display' && <ResumeDisplayView resumeData={tailoredResume} />}
         {view === 'text' && <TextView resumeData={tailoredResume} template={selectedTemplate} />}
         {view === 'pdf' && <PdfView resumeData={tailoredResume} template={selectedTemplate} />}

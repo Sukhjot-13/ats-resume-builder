@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { PlusCircle, Trash2, Eye, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import DotsLoading from "@/components/ui/DotsLoading";
 
 export default function DashboardPage() {
   const [jobDescription, setJobDescription] = useState("");
@@ -144,7 +145,9 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-10 p-4 sm:p-6 md:p-8 max-w-8xl mx-auto bg-bg-primary text-text-primary">
       <div className="bg-surface rounded-lg shadow-md p-6 border border-border">
         {loading ? (
-          <Skeleton className="h-12 w-1/2" />
+          <h1 className="text-4xl font-bold text-accent">
+            <DotsLoading />
+          </h1>
         ) : (
           <h1 className="text-4xl font-bold text-accent">
             Welcome, {currentProfileName}!
