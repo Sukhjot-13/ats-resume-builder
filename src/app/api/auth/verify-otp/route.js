@@ -5,13 +5,10 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/user';
 import RefreshToken from '@/models/refreshToken';
 import logger from '@/lib/logger';
+import { createHash } from 'crypto';
 
-async function sha256(string) {
-  const textAsBuffer = new TextEncoder().encode(string);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', textAsBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+function sha256(string) {
+  return createHash('sha256').update(string).digest('hex');
 }
 
 export async function POST(req) {
@@ -58,7 +55,7 @@ export async function POST(req) {
     logger.info({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', userId: user._id }, 'Generated access and refresh tokens');
 
     // Hash the refresh token
-    const hashedRefreshToken = await sha256(refreshToken);
+    const hashedRefreshToken = sha256(refreshToken);
     logger.debug({ file: 'src/app/api/auth/verify-otp/route.js', function: 'POST', userId: user._id }, 'Hashed refresh token');
 
     // Save the new refresh token to its own collection

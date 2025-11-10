@@ -4,13 +4,10 @@ import { SignJWT, jwtVerify } from 'jose';
 import dbConnect from '@/lib/mongodb';
 import RefreshToken from '@/models/refreshToken';
 import logger from '@/lib/logger';
+import { createHash } from 'crypto';
 
-async function sha256(string) {
-  const textAsBuffer = new TextEncoder().encode(string);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', textAsBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+function sha256(string) {
+  return createHash('sha256').update(string).digest('hex');
 }
 
 export async function POST(req) {
@@ -33,7 +30,7 @@ export async function POST(req) {
     logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', userId }, 'Refresh token verified');
     logger.debug({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', payload }, 'Decoded refresh token payload');
 
-    const hashedToken = await sha256(refreshToken);
+    const hashedToken = sha256(refreshToken);
     logger.debug({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', hashedToken }, 'Hashed refresh token');
     const tokenDoc = await RefreshToken.findOne({ userId, token: hashedToken });
     logger.debug({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', tokenDoc: tokenDoc ? 'found' : 'not found' }, 'Token document from database');
@@ -66,7 +63,7 @@ export async function POST(req) {
     
     logger.info({ file: 'src/app/api/auth/verify-token/route.js', function: 'POST', userId }, 'Generated new access and refresh tokens');
 
-    const newHashedRefreshToken = await sha256(newRefreshToken);
+    const newHashedRefreshToken = sha256(newRefreshToken);
     await RefreshToken.create({
       userId,
       token: newHashedRefreshToken,
