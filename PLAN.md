@@ -1,27 +1,62 @@
-# Plan for Refactoring Token Handling
+# Plan: Overhaul of Authentication Logic (`proxy.js`)
 
-1.  **Create `PLAN.md`**: Create a `PLAN.md` file in the root directory to document the refactoring plan.
-2.  **Fix Hashing Inconsistency**:
-    *   [ ] Read `src/app/api/auth/verify-otp/route.js`.
-    *   [ ] Replace the existing `sha256` function in `src/app/api/auth/verify-otp/route.js` with one that uses `crypto.createHash('sha256').update(string).digest('hex')`.
-    *   [ ] Add `import crypto from 'crypto';` to `src/app/api/auth/verify-otp/route.js`.
-3.  **Consolidate Token Logic in `src/lib/utils.js`**:
-    *   [ ] Read `src/lib/utils.js`.
-    *   [ ] Update the `sha256` function in `src/lib/utils.js` to use `crypto.createHash`.
-    *   [ ] Create a `generateAccessToken(userId)` function in `utils.js` that uses `jose` to sign a new access token.
-    *   [ ] Create a `generateRefreshToken(userId)` function in `utils.js` that uses `jose` to sign a new refresh token.
-    *   [ ] Create a `verifyToken(token, tokenType)` function in `utils.js` that uses `jose` to verify a token.
-    *   [ ] Remove the `sha256` function from `src/app/api/auth/verify-otp/route.js` and import it from `utils.js`.
-4.  **Refactor API Routes**:
-    *   [ ] Read `src/app/api/auth/verify-otp/route.js`.
-    *   [ ] Replace the token generation logic with calls to the new functions in `utils.js`.
-    *   [ ] Read `src/app/api/auth/verify-token/route.js`.
-    *   [ ] Replace the token verification and generation logic with calls to the new functions in `utils.js`.
-5.  **Refactor Middleware**:
-    *   [ ] Read `src/proxy.js`.
-    *   [ ] Replace the token verification logic with a call to the new `verifyToken` function in `utils.js`.
-6.  **Update `README.md`**:
-    *   [ ] Read `README.md`.
-    *   [ ] Update the descriptions of the authentication API routes to reflect the refactoring.
-    *   [ ] Add a description of the new token-related functions in `src/lib/utils.js`.
-    *   [ ] Update the "Inconsistent Hashing Algorithm" issue in the "Known Issues" section to "Resolved".
+This plan incorporates the user's detailed suggestions to refactor and harden the authentication logic currently in `src/proxy.js`. The goal is to improve security, performance, testability, and maintainability.
+
+## Phase 1: Core Logic Refactoring & Local Verification
+
+1.  **Investigate Core Auth Logic:**
+    -   Read `src/app/api/auth/verify-token/route.js` to understand the complete current refresh token logic.
+    -   Read `src/models/refreshToken.js` to understand the database schema for refresh tokens.
+    -   Read `src/lib/logger.js` to see if a structured logger is available.
+
+2.  **Create Centralized Auth Library (`src/lib/auth.js`):**
+    -   Create a new file `src/lib/auth.js`.
+    -   **Move Token Verification Logic:** Create a function `verifyAccessToken(accessToken)` that contains the `verifyToken` logic.
+    -   **Create Token Rotation Logic:** Create a function `rotateRefreshToken(refreshToken)`. This function will contain the core logic from the `verify-token` API route:
+        -   It will verify the provided refresh token.
+        -   It will implement **secure refresh token rotation**. This includes checking for token reuse by looking it up in the database. If a token is reused, all sessions for that user should be invalidated for security.
+        -   If valid, it will generate a new access token and a new refresh token.
+        -   It will update the database with the new refresh token, invalidating the old one.
+    -   **Create Main Verification Function:** Create a main function `verifyAuth(reqCookies)` that:
+        -   Accepts a plain object of cookies `{ accessToken, refreshToken }` for testability.
+        -   Tries to verify the `accessToken`.
+        -   If that fails, calls `rotateRefreshToken` with the `refreshToken`.
+        -   Returns a consistent object: `{ ok, userId?, newAccessToken?, newRefreshToken?, reason?, clearCookies? }`.
+
+3.  **Refactor `proxy.js` to use `auth.js`:**
+    -   Update `proxy.js` to import `verifyAuth` from `src/lib/auth.js`.
+    -   In the `proxy` function, extract cookies from the `req` object and call `verifyAuth({ accessToken, refreshToken })`. **Do not use `fetch` to call the API route.**
+    -   Based on the result from `verifyAuth` and the request path, use simple helper functions (or clean inline logic) to determine the response.
+    -   **Improve Cookie Security:** When setting cookies, add `path: '/'` and `sameSite: 'lax'` to the existing options.
+
+4.  **Update API Route (`verify-token`):**
+    -   The API route at `src/app/api/auth/verify-token/route.js` will now be simplified to just call the `rotateRefreshToken` function from `src/lib/auth.js`. This is for backwards compatibility if any other part of the system uses it, but the middleware will no longer call it.
+
+## Phase 2: Improving Robustness
+
+5.  **Structured Logging:**
+    -   Throughout the new functions in `src/lib/auth.js` and in `proxy.js`, replace all `console.log` statements with the logger from `src/lib/logger.js`.
+    -   Ensure no sensitive data (like tokens) is logged.
+
+6.  **Unit Testing:**
+    -   Identify the testing framework used in the project (by checking `package.json` and for config files).
+    -   Create a new test file, e.g., `src/lib/auth.test.js`.
+    -   Write unit tests for the `verifyAuth` function covering various scenarios:
+        -   Valid access token.
+        -   Expired access token, valid refresh token (successful rotation).
+        -   Invalid/expired refresh token.
+        -   Missing tokens.
+        -   Attempted reuse of a refresh token.
+
+## Phase 3: Documentation and Future Work
+
+7.  **Update `README.md`:**
+    -   Update the description of `proxy.js` and the authentication system.
+    -   Document the new `src/lib/auth.js` module.
+    -   Mark the refactoring task as **RESOLVED**.
+
+8.  **Document Future Improvements:**
+    -   Add a new section to `README.md` for "Future Security Improvements" and suggest:
+        -   Migrating the codebase to **TypeScript** for improved type safety.
+        -   Implementing **CSRF protection** for all state-changing API endpoints.
+        -   Adding **rate limiting** to authentication endpoints to prevent brute-force attacks.

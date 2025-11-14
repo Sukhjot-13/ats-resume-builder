@@ -33,7 +33,7 @@ The application follows a standard Next.js architecture, with the frontend and b
 - **Backend**: The backend is implemented using Next.js API Routes. It handles authentication, user profile management, resume operations, and AI-powered features.
 - **Database**: A MongoDB database is used to store user data, refresh tokens, and resumes. Mongoose is used as the Object Data Modeling (ODM) library.
 - **Services**: The business logic for AI features and PDF rendering is encapsulated in separate service modules.
-- **Authentication**: The authentication system is token-based. A short-lived access token is stored in a cookie, and a long-lived refresh token is stored in an `httpOnly` cookie. The refresh token is also stored in the database (hashed) for security. Refresh token rotation is implemented to enhance security.
+- **Authentication**: The authentication system is token-based, using a short-lived access token and a long-lived refresh token (HttpOnly, SameSite=Lax). It features secure refresh token rotation with reuse detection to enhance security. The core logic is centralized in `src/lib/auth.js` and orchestrated via the `src/proxy.js` middleware.
 
 ## File Structure
 
@@ -77,7 +77,7 @@ The project follows a standard Next.js file structure.
 - `globals.css`: Global CSS styles.
 - `layout.js`: The root layout of the application.
 - `page.js`: The home page of the application.
-- `proxy.js`: A middleware for handling authentication and authorization for protected routes.
+- `proxy.js`: A Next.js middleware that acts as the central authentication gatekeeper. It orchestrates authentication and authorization for all protected API routes and pages by using the helper logic from `src/lib/auth.js`.
 
 ### `src/app/api`
 
@@ -119,6 +119,7 @@ The project follows a standard Next.js file structure.
 
 ### `src/lib`
 
+- `auth.js`: A centralized module containing all core authentication logic. It handles access token verification and secure refresh token rotation with reuse detection. It is used by the `proxy.js` middleware and API routes.
 - `mongodb.js`: Handles the connection to the MongoDB database.
 - `utils.js`: Contains utility functions, including:
   - `sha256(string)` / `hashToken(string)`: Hashes a string using the SHA256 algorithm.
@@ -151,13 +152,23 @@ The project follows a standard Next.js file structure.
 - **Unused Component Props**: The `TextView` component in `src/components/preview/TextView.js` fetches its content from a test route and does not use its `resumeData` and `template` props. This component seems to be for debugging purposes and should be updated to use the props if it's intended for production use.
 - **Hardcoded Template Names**: The `TemplateSelector` component has hardcoded template names. It would be better to fetch the list of available templates from the server.
 - **Error Handling**: The error handling in some of the API routes could be improved to provide more specific error messages to the client.
+- **Centralize AI Logic**: <span style="color:green">**RESOLVED**</span> The AI-related services now use a centralized `geminiService.js` to interact with the Google Gemini API.
 - **Improve Error Handling**: The error handling in the API routes is basic. A more robust error handling strategy could be implemented using custom error classes and a middleware to handle errors consistently across the application.
-- **Refactor `proxy.js` Middleware**: The `src/proxy.js` middleware is quite large and handles multiple concerns (API proxying, protected routes, login redirect). It could be broken down into smaller, more focused middlewares for better separation of concerns and easier maintenance.
+- **Refactor `proxy.js` Middleware**: <span style="color:green">**RESOLVED**</span> The `proxy.js` middleware has been refactored. The core authentication logic has been moved to a centralized, testable module at `src/lib/auth.js`, making the middleware a lightweight orchestrator.
 - **Environment Variable Validation**: Implement validation for environment variables at application startup to ensure all required variables are set, preventing runtime errors. Libraries like `zod` can be used for this.
 - **Dynamic Template Loading**: The `TemplateSelector` component currently hardcodes template names. It would be beneficial to dynamically load the list of available templates from the server or file system, allowing for easier addition or removal of templates.
 
-### Authentication System Improvements
+## Future Security Improvements
 
+The following are recommended next steps to further harden the application's security:
+
+- **TypeScript Migration**: The codebase could be progressively migrated to TypeScript. This would provide static type checking, reducing the likelihood of runtime errors and improving developer experience and code maintainability.
+- **CSRF Protection**: Implement a robust Cross-Site Request Forgery (CSRF) protection mechanism, such as the double-submit cookie pattern, for all state-changing API endpoints to prevent malicious attacks.
+- **Rate Limiting**: Introduce rate limiting on sensitive authentication endpoints, especially login and token refresh, to protect against brute-force and denial-of-service attacks.
+- **Structured Logging**: Implement a structured logger (e.g., Pino or Winston) throughout the backend to create parseable, detailed logs for security auditing and easier debugging, ensuring no sensitive data is ever logged.
+- **Unit & Integration Testing**: The project currently lacks a testing framework. Adding one (e.g., Jest or Vitest) to create unit and integration tests would significantly improve the reliability and security of the application.
+
+### Authentication System Improvements
 - **Stricter Input Validation**: Implement robust validation for `email` and `otp` inputs to ensure they are in the correct format.
 - **Rate Limiting**: Introduce rate limiting on the OTP verification endpoint to prevent brute-force attacks.
 - **More Secure OTP Generation**: Use a cryptographically secure random number generator (e.g., `crypto.randomInt`) for generating OTPs to enhance security.
