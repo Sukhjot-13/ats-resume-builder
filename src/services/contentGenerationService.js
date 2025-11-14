@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiFlashModel } from './geminiService';
 
 /**
  * Generates tailored resume content based on a user's resume, a job description, and special instructions.
@@ -90,8 +90,7 @@ export async function generateTailoredContent(resume, jobDescription, specialIns
   }
 
   // Call the Gemini API to generate the tailored content
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+  const model = getGeminiFlashModel();
   const result = await model.generateContent(prompt);
   let text = result.response.text().replace(/```json/g, "").replace(/```/g, "");
   const lastBraceIndex = text.lastIndexOf('}');

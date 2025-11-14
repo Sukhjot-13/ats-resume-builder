@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiFlashModel } from './geminiService';
 
 /**
  * Edits a user's resume based on a natural language query.
@@ -71,8 +71,7 @@ export async function editResumeWithAI(resume, query) {
   `;
 
   // Call the Gemini API to generate the edited content
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+  const model = getGeminiFlashModel();
   const result = await model.generateContent(prompt);
   let text = result.response.text().replace(/```json/g, "").replace(/```/g, "");
   const lastBraceIndex = text.lastIndexOf('}');

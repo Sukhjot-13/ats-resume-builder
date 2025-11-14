@@ -1,6 +1,6 @@
 import mammoth from 'mammoth';
 import { extractText as extractPdfText } from 'unpdf';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiFlashModel } from './geminiService';
 
 /**
  * Extracts text from a file buffer.
@@ -94,8 +94,7 @@ export async function parseResume(file) {
   `;
 
   // Call the Gemini API to parse the resume
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+  const model = getGeminiFlashModel();
   const result = await model.generateContent(prompt);
   const text = result.response.text().replace(/```json/g, "").replace(/```/g, "");
 
