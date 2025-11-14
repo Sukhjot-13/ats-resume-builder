@@ -151,6 +151,21 @@ The project follows a standard Next.js file structure.
 *   **Unused Component Props**: The `TextView` component in `src/components/preview/TextView.js` fetches its content from a test route and does not use its `resumeData` and `template` props. This component seems to be for debugging purposes and should be updated to use the props if it's intended for production use.
 *   **Hardcoded Template Names**: The `TemplateSelector` component has hardcoded template names. It would be better to fetch the list of available templates from the server.
 *   **Error Handling**: The error handling in some of the API routes could be improved to provide more specific error messages to the client.
+*   **Centralize AI Logic**: The AI-related services (`aiResumeEditorService.js`, `contentGenerationService.js`, `resumeParsingService.js`) all instantiate their own `GoogleGenerativeAI` client. This could be centralized into a single module to handle the Gemini API interaction, improving maintainability and configuration management.
+*   **Improve Error Handling**: The error handling in the API routes is basic. A more robust error handling strategy could be implemented using custom error classes and a middleware to handle errors consistently across the application.
+*   **Refactor `proxy.js` Middleware**: The `src/proxy.js` middleware is quite large and handles multiple concerns (API proxying, protected routes, login redirect). It could be broken down into smaller, more focused middlewares for better separation of concerns and easier maintenance.
+*   **Environment Variable Validation**: Implement validation for environment variables at application startup to ensure all required variables are set, preventing runtime errors. Libraries like `zod` can be used for this.
+*   **Dynamic Template Loading**: The `TemplateSelector` component currently hardcodes template names. It would be beneficial to dynamically load the list of available templates from the server or file system, allowing for easier addition or removal of templates.
+
+### Authentication System Improvements
+*   **Stricter Input Validation**: Implement robust validation for `email` and `otp` inputs to ensure they are in the correct format.
+*   **Rate Limiting**: Introduce rate limiting on the OTP verification endpoint to prevent brute-force attacks.
+*   **More Secure OTP Generation**: Use a cryptographically secure random number generator (e.g., `crypto.randomInt`) for generating OTPs to enhance security.
+*   **Enhanced Token Security**: Consider implementing token blacklisting for immediate session revocation and refresh token replay detection to further secure the token-based authentication.
+*   **Granular Roles and Permissions**: Expand the simple role system into a more granular Role-Based Access Control (RBAC) system to manage user permissions more effectively.
+*   **CSRF Protection**: Implement a robust CSRF protection mechanism, such as the double-submit cookie pattern, to protect against Cross-Site Request Forgery attacks.
+*   **Security Headers**: Add more security-related HTTP headers (`Content-Security-Policy`, `Strict-Transport-Security`, etc.) to harden the application against common web vulnerabilities.
+*   **Improved Logging and Monitoring**: Enhance logging in the authentication routes to provide more detailed information for security auditing and debugging purposes.
 
 ## Setup and Running the Project
 
