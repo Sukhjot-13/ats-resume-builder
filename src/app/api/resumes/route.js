@@ -73,7 +73,9 @@ export async function POST(req) {
       await newResume.save();
     }
 
-    return NextResponse.json(newResume, { status: 201 });
+    const populatedResume = await Resume.findById(newResume._id).populate('metadata');
+
+    return NextResponse.json(populatedResume, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

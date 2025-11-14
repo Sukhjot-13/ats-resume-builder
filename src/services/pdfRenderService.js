@@ -10,8 +10,9 @@ import puppeteer from 'puppeteer';
 const formatDate = (dateString) => {
   if (!dateString) return null;
   const date = new Date(dateString);
-  const month = date.toLocaleString('default', { month: 'long' });
-  const year = date.getFullYear();
+  date.setUTCHours(12);
+  const month = date.toLocaleString('default', { month: 'long', timeZone: 'UTC' });
+  const year = date.getUTCFullYear();
   return `${month} ${year}`;
 };
 
@@ -39,7 +40,7 @@ export async function renderPdf(resumeData, template, returnHtml = false) {
   // Replace skills placeholder
   if (resumeData.skills && resumeData.skills.length > 0) {
     let skills;
-    if (template === 'test.html') {
+    if (template === 'test.html' || template === 'Test2.html') {
       skills = resumeData.skills.map(skill => skill.skill_name).join(', ');
     } else {
       skills = resumeData.skills.map(skill => `<li>${skill.skill_name}</li>`).join('');

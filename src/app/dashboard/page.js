@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [generating, setGenerating] = useState(false);
   const [tailoredResume, setTailoredResume] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState("Simple.html"); // Default template
+  const [selectedTemplate, setSelectedTemplate] = useState("Test2.html"); // Default template
   const [profile, setProfile] = useState(null);
   const [resumes, setResumes] = useState([]);
   const [deletingId, setDeletingId] = useState(null);
@@ -185,26 +185,38 @@ export default function DashboardPage() {
             {resumes
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .map((resume) => (
-              <div key={resume._id} className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h3 className="text-xl font-semibold mb-2">
-                  {resume.metadata?.jobTitle || 'Resume'}
-                </h3>
-                {resume.metadata?.companyName && (
-                  <p className="text-gray-400">Company: {resume.metadata.companyName}</p>
-                )}
-                <p className="text-gray-400">Created At: {new Date(resume.createdAt).toLocaleString()}</p>
-                <div className="flex gap-4 mt-4">
-                  <button onClick={() => setTailoredResume(resume.content)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">View</button>
-                  <button
-                    onClick={() => handleDeleteResume(resume._id)}
-                    disabled={deletingId === resume._id}
-                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-gray-500"
-                  >
-                    {deletingId === resume._id ? 'Deleting...' : 'Delete'}
-                  </button>
+                <div
+                  key={resume._id}
+                  className="bg-gray-800 p-6 rounded-lg shadow-lg"
+                >
+                  <h3 className="text-xl font-semibold mb-2">
+                    {resume.metadata?.jobTitle || "Resume"}
+                  </h3>
+                  {resume.metadata?.companyName && (
+                    <p className="text-gray-400">
+                      Company: {resume.metadata.companyName}
+                    </p>
+                  )}
+                  <p className="text-gray-400">
+                    Created At: {new Date(resume.createdAt).toLocaleString()}
+                  </p>
+                  <div className="flex gap-4 mt-4">
+                    <button
+                      onClick={() => setTailoredResume(resume.content)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDeleteResume(resume._id)}
+                      disabled={deletingId === resume._id}
+                      className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full disabled:bg-gray-500"
+                    >
+                      {deletingId === resume._id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>

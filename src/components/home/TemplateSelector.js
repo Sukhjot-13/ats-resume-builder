@@ -19,6 +19,7 @@ export default function TemplateSelector({
         onChange={(e) => setSelectedTemplate(e.target.value)}
         className="w-full bg-gray-700 text-white p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
+        <option value="Test2.html">Test2</option>
         <option value="test.html">Test</option>
         <option value="Simple.html">Simple</option>
         <option value="Professional.html">Professional</option>
