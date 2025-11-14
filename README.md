@@ -121,7 +121,11 @@ The project follows a standard Next.js file structure.
 ### `src/lib`
 
 *   `mongodb.js`: Handles the connection to the MongoDB database.
-*   `utils.js`: Contains utility functions, such as a `sha256` hashing function.
+*   `utils.js`: Contains utility functions, including:
+    *   `sha256(string)` / `hashToken(string)`: Hashes a string using the SHA256 algorithm.
+    *   `generateAccessToken(userId)`: Generates a new access token.
+    *   `generateRefreshToken(userId)`: Generates a new refresh token.
+    *   `verifyToken(token, tokenType)`: Verifies an access or refresh token.
 
 ### `src/models`
 
@@ -140,10 +144,9 @@ The project follows a standard Next.js file structure.
 
 ## Known Issues and Areas for Improvement
 
-*   **Inconsistent Hashing Algorithm**: There is a critical bug in the authentication flow. The `sha256` function in `src/app/api/auth/verify-otp/route.js` uses `crypto.subtle.digest`, while the hashing in `src/app/api/auth/verify-token/route.js` uses `crypto.createHash`. These two methods produce different hashes, which will cause refresh token verification to fail.
-    *   **Recommendation**: Use the same hashing implementation in both files. The `sha256` function from `src/lib/utils.js` should be used consistently.
+*   **Inconsistent Hashing Algorithm**: <span style="color:green">**RESOLVED**</span> The hashing algorithm for refresh tokens is now consistent across the application.
 *   **Code Duplication**:
-    *   The `sha256` function is defined in both `src/lib/utils.js` and `src/app/api/auth/verify-otp/route.js`. The one in `utils.js` should be used.
+    *   <span style="color:green">**RESOLVED**</span> The `sha256` function is no longer duplicated.
     *   The components `src/components/home/JobDescription.js` and `src/components/home/JobDescriptionInput.js` are identical. One of them should be removed.
 *   **Unused Component Props**: The `TextView` component in `src/components/preview/TextView.js` fetches its content from a test route and does not use its `resumeData` and `template` props. This component seems to be for debugging purposes and should be updated to use the props if it's intended for production use.
 *   **Hardcoded Template Names**: The `TemplateSelector` component has hardcoded template names. It would be better to fetch the list of available templates from the server.

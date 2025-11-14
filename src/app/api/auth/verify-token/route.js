@@ -1,9 +1,13 @@
 
 import { NextResponse } from 'next/server';
-import { SignJWT, jwtVerify } from 'jose';
-import crypto from 'crypto';
 import dbConnect from '@/lib/mongodb';
 import RefreshToken from '@/models/refreshToken';
+import {
+  verifyToken,
+  hashToken,
+  generateAccessToken,
+  generateRefreshToken,
+} from '@/lib/utils';
 
 export async function POST(req) {
   console.log('--- In verify-token route ---');
@@ -12,7 +16,6 @@ export async function POST(req) {
   const { refreshToken } = body;
   console.log('Received refresh token:', refreshToken);
 
-
   if (!refreshToken) {
     return NextResponse.json({ error: 'Refresh token is required' }, { status: 400 });
   }
@@ -20,10 +23,9 @@ export async function POST(req) {
   try {
     await dbConnect();
 
-    const { payload } = await jwtVerify(refreshToken, new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET));
-    const { userId } = payload;
+    const { userId } = await verifyToken(refreshToken, 'refresh');
 
-    const hashedToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const hashedToken = hashToken(refreshToken);
     const tokenDoc = await RefreshToken.findOne({ userId, token: hashedToken });
 
     if (!tokenDoc) {
@@ -39,17 +41,10 @@ export async function POST(req) {
     // ROTATION
     await RefreshToken.findByIdAndDelete(tokenDoc._id);
 
-    const newAccessToken = await new SignJWT({ userId })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('15m')
-      .sign(new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET));
+    const newAccessToken = await generateAccessToken(userId);
+    const newRefreshToken = await generateRefreshToken(userId);
 
-    const newRefreshToken = await new SignJWT({ userId })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('15d')
-      .sign(new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET));
-
-    const newHashedRefreshToken = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
+    const newHashedRefreshToken = hashToken(newRefreshToken);
     await RefreshToken.create({
       userId,
       token: newHashedRefreshToken,

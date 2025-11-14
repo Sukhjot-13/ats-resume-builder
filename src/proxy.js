@@ -1,14 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
-
-const getSecret = (tokenType) => {
-  const secret = tokenType === 'access'
-    ? process.env.ACCESS_TOKEN_SECRET
-    : process.env.REFRESH_TOKEN_SECRET;
-  if (!secret) throw new Error(`Secret for ${tokenType} token is not defined.`);
-  return new TextEncoder().encode(secret);
-};
+import { verifyToken } from '@/lib/utils';
 
 async function verifyAndRefreshTokens(req) {
   console.log('--- Verifying tokens ---');
@@ -20,9 +12,9 @@ async function verifyAndRefreshTokens(req) {
   // 1. Check for valid access token
   if (accessToken) {
     try {
-      const { payload } = await jwtVerify(accessToken, getSecret('access'));
+      const { userId } = await verifyToken(accessToken, 'access');
       console.log('Access token is valid');
-      return { isValid: true, userId: payload.userId };
+      return { isValid: true, userId };
     } catch (error) {
       console.log('Access token is invalid or expired, falling back to refresh token');
     }

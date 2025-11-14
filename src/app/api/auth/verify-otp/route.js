@@ -1,17 +1,13 @@
 
 import { NextResponse } from 'next/server';
-import { SignJWT } from 'jose';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/user';
 import RefreshToken from '@/models/refreshToken';
-
-async function sha256(string) {
-  const textAsBuffer = new TextEncoder().encode(string);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', textAsBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-}
+import {
+  hashToken,
+  generateAccessToken,
+  generateRefreshToken,
+} from '@/lib/utils';
 
 export async function POST(req) {
   const { email, otp } = await req.json();
@@ -30,23 +26,13 @@ export async function POST(req) {
     }
 
     let newUser = !user.name;
-
-    const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
-    const refreshSecret = new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET);
     const refreshTokenExpirationSeconds = 15 * 24 * 60 * 60; // 15 days in seconds
 
-    const accessToken = await new SignJWT({ userId: user._id.toString() })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('5m')
-      .sign(secret);
-
-    const refreshToken = await new SignJWT({ userId: user._id.toString() })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('15d')
-      .sign(refreshSecret);
+    const accessToken = await generateAccessToken(user._id);
+    const refreshToken = await generateRefreshToken(user._id);
 
     // Hash the refresh token
-    const hashedRefreshToken = await sha256(refreshToken);
+    const hashedRefreshToken = hashToken(refreshToken);
 
     // Save the new refresh token to its own collection
     await RefreshToken.create({
