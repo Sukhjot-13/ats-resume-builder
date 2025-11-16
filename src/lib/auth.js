@@ -13,7 +13,7 @@ import {
  * @param {string} accessToken - The access token to verify.
  * @returns {Promise<{userId: string}>} - The decoded token payload.
  */
-export async function verifyAccessToken(accessToken) {
+async function verifyAccessToken(accessToken) {
   return verifyToken(accessToken, "access");
 }
 
@@ -24,7 +24,7 @@ export async function verifyAccessToken(accessToken) {
  * @param {object} reqInfo - Request info { ip, userAgent }.
  * @returns {Promise<{newAccessToken: string, newRefreshToken: string, userId: string}>}
  */
-async function rotateRefreshToken(refreshToken, reqInfo) {
+export async function rotateRefreshToken(refreshToken, reqInfo) {
   await dbConnect();
 
   // Verify the token signature and get userId
