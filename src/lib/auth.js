@@ -1,11 +1,11 @@
-import dbConnect from '@/lib/mongodb';
-import RefreshToken from '@/models/refreshToken';
+import dbConnect from "@/lib/mongodb";
+import RefreshToken from "@/models/refreshToken";
 import {
   verifyToken,
   hashToken,
   generateAccessToken,
   generateRefreshToken,
-} from '@/lib/utils';
+} from "@/lib/utils";
 
 /**
  * Verifies the access token.
@@ -13,8 +13,8 @@ import {
  * @param {string} accessToken - The access token to verify.
  * @returns {Promise<{userId: string}>} - The decoded token payload.
  */
-async function verifyAccessToken(accessToken) {
-  return verifyToken(accessToken, 'access');
+export async function verifyAccessToken(accessToken) {
+  return verifyToken(accessToken, "access");
 }
 
 /**
@@ -28,7 +28,7 @@ async function rotateRefreshToken(refreshToken, reqInfo) {
   await dbConnect();
 
   // Verify the token signature and get userId
-  const { userId } = await verifyToken(refreshToken, 'refresh');
+  const { userId } = await verifyToken(refreshToken, "refresh");
 
   const hashedToken = hashToken(refreshToken);
   const tokenDoc = await RefreshToken.findOne({ userId, token: hashedToken });
@@ -37,13 +37,13 @@ async function rotateRefreshToken(refreshToken, reqInfo) {
   // As a security measure, we delete all refresh tokens for this user.
   if (!tokenDoc) {
     await RefreshToken.deleteMany({ userId });
-    throw new Error('Invalid refresh token');
+    throw new Error("Invalid refresh token");
   }
 
   // Check if the token from the DB has expired
   if (tokenDoc.expiresAt < new Date()) {
     await RefreshToken.findByIdAndDelete(tokenDoc._id);
-    throw new Error('Expired refresh token');
+    throw new Error("Expired refresh token");
   }
 
   // --- ROTATION ---
@@ -81,26 +81,29 @@ export async function verifyAuth(tokens, reqInfo) {
   if (accessToken) {
     try {
       const { userId } = await verifyAccessToken(accessToken);
-      console.log('Access token is valid');
+      console.log("Access token is valid");
       return { ok: true, userId };
     } catch (error) {
-      console.log('Access token is invalid or expired, falling back to refresh token');
+      console.log(
+        "Access token is invalid or expired, falling back to refresh token"
+      );
     }
   }
 
   // 2. Check for valid refresh token
   if (!refreshToken) {
-    console.log('No refresh token found');
-    return { ok: false, reason: 'No refresh token' };
+    console.log("No refresh token found");
+    return { ok: false, reason: "No refresh token" };
   }
 
   try {
-    console.log('Attempting to rotate refresh token');
-    const { newAccessToken, newRefreshToken, userId } = await rotateRefreshToken(refreshToken, reqInfo);
-    console.log('Successfully rotated tokens');
+    console.log("Attempting to rotate refresh token");
+    const { newAccessToken, newRefreshToken, userId } =
+      await rotateRefreshToken(refreshToken, reqInfo);
+    console.log("Successfully rotated tokens");
     return { ok: true, userId, newAccessToken, newRefreshToken };
   } catch (error) {
-    console.error('Failed to rotate refresh token:', error.message);
+    console.error("Failed to rotate refresh token:", error.message);
     // If refresh fails, we should clear the cookies
     return { ok: false, reason: error.message, clearCookies: true };
   }
