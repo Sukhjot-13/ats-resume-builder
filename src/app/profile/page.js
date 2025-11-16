@@ -1,23 +1,22 @@
-
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useApiClient } from '@/hooks/useApiClient';
-import ResumeUpload from '@/components/profile/ResumeUpload';
-import ResumePreview from '@/components/preview/ResumePreview';
-import TemplateSelector from '@/components/home/TemplateSelector';
+import { useState, useEffect } from "react";
+import { useApiClient } from "@/hooks/useApiClient";
+import ResumeUpload from "@/components/profile/ResumeUpload";
+import ResumePreview from "@/components/preview/ResumePreview";
+import TemplateSelector from "@/components/home/TemplateSelector";
 
 export default function ProfilePage() {
-  const [name, setName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [name, setName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [loading, setLoading] = useState(false);
   const [parsing, setParsing] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [masterResume, setMasterResume] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState('Simple.html');
+  const [selectedTemplate, setSelectedTemplate] = useState("Simple.html");
   const [showAiEditor, setShowAiEditor] = useState(false);
-  const [aiEditQuery, setAiEditQuery] = useState('');
+  const [aiEditQuery, setAiEditQuery] = useState("");
   const [editing, setEditing] = useState(false);
   const apiClient = useApiClient();
 
@@ -25,23 +24,25 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await apiClient('/api/user/profile');
+        const response = await apiClient("/api/user/profile");
 
         if (response.ok) {
           const data = await response.json();
-          setName(data.name || '');
+          setName(data.name || "");
           if (data.dateOfBirth) {
-            setDateOfBirth(new Date(data.dateOfBirth).toISOString().split('T')[0]);
+            setDateOfBirth(
+              new Date(data.dateOfBirth).toISOString().split("T")[0]
+            );
           }
           if (data.mainResume) {
             setMasterResume(data.mainResume.content);
           }
         } else {
           const data = await response.json();
-          setError(data.error || 'Failed to fetch profile');
+          setError(data.error || "Failed to fetch profile");
         }
       } catch (err) {
-        setError('An unexpected error occurred.');
+        setError("An unexpected error occurred.");
       }
       setLoading(false);
     };
@@ -52,26 +53,26 @@ export default function ProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
-      const response = await apiClient('/api/user/profile', {
-        method: 'PUT',
+      const response = await apiClient("/api/user/profile", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, dateOfBirth }),
       });
 
       if (response.ok) {
-        setSuccess('Profile updated successfully!');
+        setSuccess("Profile updated successfully!");
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to update profile');
+        setError(data.error || "Failed to update profile");
       }
     } catch (err) {
-      setError('An unexpected error occurred.');
+      setError("An unexpected error occurred.");
     }
 
     setLoading(false);
@@ -82,26 +83,26 @@ export default function ProfilePage() {
     if (!file) return;
 
     setParsing(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     const formData = new FormData();
-    formData.append('resumeFile', file);
+    formData.append("resumeFile", file);
 
     try {
-      const response = await apiClient('/api/parse-resume', {
-        method: 'POST',
+      const response = await apiClient("/api/parse-resume", {
+        method: "POST",
         body: formData,
       });
 
       if (response.ok) {
         const data = await response.json();
-        setSuccess('Resume parsed successfully!');
-        
-        const profileResponse = await apiClient('/api/user/profile', {
-          method: 'PUT',
+        setSuccess("Resume parsed successfully!");
+
+        const profileResponse = await apiClient("/api/user/profile", {
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ mainResume: data }),
         });
@@ -110,13 +111,12 @@ export default function ProfilePage() {
           const updatedUser = await profileResponse.json();
           setMasterResume(updatedUser.mainResume.content);
         }
-
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to parse resume.');
+        setError(data.error || "Failed to parse resume.");
       }
     } catch (err) {
-      setError('An unexpected error occurred during resume parsing.');
+      setError("An unexpected error occurred during resume parsing.");
     } finally {
       setParsing(false);
     }
@@ -124,14 +124,14 @@ export default function ProfilePage() {
 
   const handleAiEdit = async () => {
     setEditing(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
-      const response = await apiClient('/api/edit-resume-with-ai', {
-        method: 'POST',
+      const response = await apiClient("/api/edit-resume-with-ai", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ resume: masterResume, query: aiEditQuery }),
       });
@@ -139,15 +139,15 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json();
         setMasterResume(data);
-        setSuccess('Resume updated successfully with AI!');
+        setSuccess("Resume updated successfully with AI!");
         setShowAiEditor(false);
-        setAiEditQuery('');
+        setAiEditQuery("");
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to edit resume with AI.');
+        setError(data.error || "Failed to edit resume with AI.");
       }
     } catch (err) {
-      setError('An unexpected error occurred during AI edit.');
+      setError("An unexpected error occurred during AI edit.");
     }
 
     setEditing(false);
@@ -159,12 +159,16 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
           <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full">
-            <h2 className="text-2xl font-bold mb-6 text-center">Your Details</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">
+              Your Details
+            </h2>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             {success && <p className="text-green-500 mb-4">{success}</p>}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label htmlFor="name" className="block mb-2">Name</label>
+                <label htmlFor="name" className="block mb-2">
+                  Name
+                </label>
                 <input
                   type="text"
                   id="name"
@@ -175,7 +179,9 @@ export default function ProfilePage() {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="dateOfBirth" className="block mb-2">Date of Birth</label>
+                <label htmlFor="dateOfBirth" className="block mb-2">
+                  Date of Birth
+                </label>
                 <input
                   type="date"
                   id="dateOfBirth"
@@ -190,14 +196,14 @@ export default function ProfilePage() {
                 disabled={loading}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
               >
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             </form>
             <button
               onClick={() => setShowAiEditor(!showAiEditor)}
               className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
             >
-              {showAiEditor ? 'Cancel AI Edit' : 'Edit with AI'}
+              {showAiEditor ? "Cancel AI Edit" : "Edit with AI"}
             </button>
             {showAiEditor && (
               <div className="mt-4">
@@ -212,17 +218,23 @@ export default function ProfilePage() {
                   disabled={editing}
                   className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
                 >
-                  {editing ? 'Editing...' : 'Submit AI Edit'}
+                  {editing ? "Editing..." : "Submit AI Edit"}
                 </button>
               </div>
             )}
           </div>
           <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
-          <TemplateSelector selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate} />
+          <TemplateSelector
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
+          />
         </div>
         <div>
           {masterResume && (
-            <ResumePreview tailoredResume={masterResume} selectedTemplate={selectedTemplate} />
+            <ResumePreview
+              tailoredResume={masterResume}
+              selectedTemplate={selectedTemplate}
+            />
           )}
         </div>
       </div>

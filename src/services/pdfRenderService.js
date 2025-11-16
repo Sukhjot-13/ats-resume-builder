@@ -39,12 +39,7 @@ export async function renderPdf(resumeData, template, returnHtml = false) {
 
   // Replace skills placeholder
   if (resumeData.skills && resumeData.skills.length > 0) {
-    let skills;
-    if (template === 'test.html' || template === 'Test2.html') {
-      skills = resumeData.skills.map(skill => skill.skill_name).join(', ');
-    } else {
-      skills = resumeData.skills.map(skill => `<li>${skill.skill_name}</li>`).join('');
-    }
+    let skills = resumeData.skills.map(skill => `<li>${skill.skill_name}</li>`).join('');
     html = html.replace(/{skills.list_of_skills}/g, skills);
   } else {
     html = html.replace(/<div class="section skills">[\s\S]*?<\/div>/, '');

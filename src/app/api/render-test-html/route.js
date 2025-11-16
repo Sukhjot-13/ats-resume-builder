@@ -1,12 +1,16 @@
 
 import { NextResponse } from 'next/server';
 import { renderPdf } from '../../../services/pdfRenderService';
-import fs from 'fs/promises';
 
-export async function GET(request) {
+export async function POST(request) {
   try {
-    const resumeData = JSON.parse(await fs.readFile('data.json', 'utf-8'));
-    const html = await renderPdf(resumeData, 'Simple.html', true);
+    const { resumeData, template } = await request.json();
+
+    if (!resumeData || !template) {
+      return new NextResponse('Missing resumeData or template', { status: 400 });
+    }
+
+    const html = await renderPdf(resumeData, template, true); // The `true` likely means return HTML
 
     return new NextResponse(html, {
       headers: {
@@ -14,6 +18,7 @@ export async function GET(request) {
       },
     });
   } catch (error) {
-    return new NextResponse('Error generating resume: ' + error.message, { status: 500 });
+    console.error('Error generating resume HTML:', error);
+    return new NextResponse('Error generating resume HTML: ' + error.message, { status: 500 });
   }
 }

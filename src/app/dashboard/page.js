@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [generating, setGenerating] = useState(false);
   const [tailoredResume, setTailoredResume] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState("Test2.html"); // Default template
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [profile, setProfile] = useState(null);
   const [resumes, setResumes] = useState([]);
   const [deletingId, setDeletingId] = useState(null);

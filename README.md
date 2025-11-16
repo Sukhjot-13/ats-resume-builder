@@ -44,6 +44,7 @@ The project follows a standard Next.js file structure.
 ├── public/               # Static assets
 ├── src/
 │   ├── app/              # Next.js app directory
+│   │   ├── actions/      # Server actions
 │   │   ├── api/          # API routes
 │   │   ├── (pages)/      # Page components
 │   │   ├── layout.js     # Root layout
@@ -79,6 +80,10 @@ The project follows a standard Next.js file structure.
 - `page.js`: The home page of the application.
 - `proxy.js`: A Next.js middleware that acts as the central authentication gatekeeper. It orchestrates authentication and authorization for all protected API routes and pages by using the helper logic from `src/lib/auth.js`.
 
+### `src/app/actions`
+
+- `getTemplates.js`: A server action that retrieves the list of available resume templates from the file system.
+
 ### `src/app/api`
 
 #### `auth`
@@ -105,7 +110,7 @@ The project follows a standard Next.js file structure.
 - `diff/DiffViewer.js`: A component to display the difference between two texts.
 - `home/JobDescription.js`, `home/JobDescriptionInput.js`: Components for inputting a job description.
 - `home/SpecialInstructionsInput.js`: A component for inputting special instructions for the AI.
-- `home/TemplateSelector.js`: A dropdown to select a resume template.
+- `home/TemplateSelector.js`: A dropdown to select a resume template. It dynamically loads the available templates using a server action.
 - `preview/PdfView.js`: Displays a PDF preview of a resume.
 - `preview/ResumeDisplayView.js`: Displays a structured view of the resume data.
 - `preview/ResumePreview.js`: A tabbed view for previewing the resume in different formats.
@@ -145,18 +150,8 @@ The project follows a standard Next.js file structure.
 
 ## Known Issues and Areas for Improvement
 
-- **Inconsistent Hashing Algorithm**: <span style="color:green">**RESOLVED**</span> The hashing algorithm for refresh tokens is now consistent across the application.
-- **Code Duplication**:
-  - <span style="color:green">**RESOLVED**</span> The `sha256` function is no longer duplicated.
-  - The components `src/components/home/JobDescription.js` and `src/components/home/JobDescriptionInput.js` are identical. One of them should be removed.
-- **Unused Component Props**: The `TextView` component in `src/components/preview/TextView.js` fetches its content from a test route and does not use its `resumeData` and `template` props. This component seems to be for debugging purposes and should be updated to use the props if it's intended for production use.
-- **Hardcoded Template Names**: The `TemplateSelector` component has hardcoded template names. It would be better to fetch the list of available templates from the server.
-- **Error Handling**: The error handling in some of the API routes could be improved to provide more specific error messages to the client.
-- **Centralize AI Logic**: <span style="color:green">**RESOLVED**</span> The AI-related services now use a centralized `geminiService.js` to interact with the Google Gemini API.
 - **Improve Error Handling**: The error handling in the API routes is basic. A more robust error handling strategy could be implemented using custom error classes and a middleware to handle errors consistently across the application.
-- **Refactor `proxy.js` Middleware**: <span style="color:green">**RESOLVED**</span> The `proxy.js` middleware has been refactored. The core authentication logic has been moved to a centralized, testable module at `src/lib/auth.js`, making the middleware a lightweight orchestrator.
-- **Environment Variable Validation**: Implement validation for environment variables at application startup to ensure all required variables are set, preventing runtime errors. Libraries like `zod` can be used for this.
-- **Dynamic Template Loading**: The `TemplateSelector` component currently hardcodes template names. It would be beneficial to dynamically load the list of available templates from the server or file system, allowing for easier addition or removal of templates.
+- **Dynamic Template Loading**: <span style="color:green">**RESOLVED**</span> The `TemplateSelector` component now dynamically loads the list of available templates from the server using a server action.
 
 ## Future Security Improvements
 
@@ -169,6 +164,7 @@ The following are recommended next steps to further harden the application's sec
 - **Unit & Integration Testing**: The project currently lacks a testing framework. Adding one (e.g., Jest or Vitest) to create unit and integration tests would significantly improve the reliability and security of the application.
 
 ### Authentication System Improvements
+
 - **Stricter Input Validation**: Implement robust validation for `email` and `otp` inputs to ensure they are in the correct format.
 - **Rate Limiting**: Introduce rate limiting on the OTP verification endpoint to prevent brute-force attacks.
 - **More Secure OTP Generation**: Use a cryptographically secure random number generator (e.g., `crypto.randomInt`) for generating OTPs to enhance security.
@@ -212,3 +208,16 @@ The following are recommended next steps to further harden the application's sec
     ```
 
     The application will be available at `http://localhost:3000`.
+
+## Priority roadmap (what to do first)
+
+- Add automated tests + CI (unit tests for services, integration tests for API routes).
+- Introduce types (TypeScript) gradually (start with service layer & models).
+- Centralize AI handling & response parsing (one aiClient and parseAIResponse utility).
+- JSON schema validation for AI outputs (use AJV) to avoid silent parse errors.
+- Centralized error handling & custom error types (HttpError, ValidationError).
+- Refactor PDF generation into a stable pdfService (puppeteer-core + packaged Chromium options for serverless).
+- Improve auth middleware & token rotation into more testable, smaller functions.
+- Logging & metrics: structured logs, attach request IDs, instrument key metrics.
+- Performance & caching: cache some AI responses, memoize DB connections (already present), add retries/backoff for network calls.
+- Developer experience: linting, prettier, consistent file structure, README improvements (done), code owners).
