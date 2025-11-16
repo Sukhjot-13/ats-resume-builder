@@ -11,7 +11,7 @@ import { getTemplates } from "@/app/actions/getTemplates";
  * @returns {JSX.Element} The rendered component.
  */
 export default function TemplateSelector({
-  selectedTemplate = "Classic",
+  selectedTemplate,
   setSelectedTemplate,
 }) {
   const [templates, setTemplates] = useState([]);

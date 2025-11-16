@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useApiClient } from "@/hooks/useApiClient";
 import ResumeUpload from "@/components/profile/ResumeUpload";
-import ResumePreview from "@/components/preview/ResumePreview";
-import TemplateSelector from "@/components/home/TemplateSelector";
+import TemplateViewer from "@/components/preview/TemplateViewer";
 
 export default function ProfilePage() {
   const [name, setName] = useState("");
@@ -14,7 +13,6 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [masterResume, setMasterResume] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState("Simple.html");
   const [showAiEditor, setShowAiEditor] = useState(false);
   const [aiEditQuery, setAiEditQuery] = useState("");
   const [editing, setEditing] = useState(false);
@@ -224,19 +222,8 @@ export default function ProfilePage() {
             )}
           </div>
           <ResumeUpload parsing={parsing} handleFileUpload={handleFileUpload} />
-          <TemplateSelector
-            selectedTemplate={selectedTemplate}
-            setSelectedTemplate={setSelectedTemplate}
-          />
         </div>
-        <div>
-          {masterResume && (
-            <ResumePreview
-              tailoredResume={masterResume}
-              selectedTemplate={selectedTemplate}
-            />
-          )}
-        </div>
+        <div>{masterResume && <TemplateViewer resume={masterResume} />}</div>
       </div>
     </div>
   );

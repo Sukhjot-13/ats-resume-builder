@@ -5,15 +5,13 @@ import { useRouter } from "next/navigation";
 import { useApiClient } from "@/hooks/useApiClient";
 import JobDescriptionInput from "@/components/home/JobDescriptionInput";
 import SpecialInstructionsInput from "@/components/home/SpecialInstructionsInput";
-import ResumePreview from "@/components/preview/ResumePreview";
-import TemplateSelector from "@/components/home/TemplateSelector";
+import TemplateViewer from "@/components/preview/TemplateViewer";
 
 export default function DashboardPage() {
   const [jobDescription, setJobDescription] = useState("");
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [generating, setGenerating] = useState(false);
   const [tailoredResume, setTailoredResume] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [profile, setProfile] = useState(null);
   const [resumes, setResumes] = useState([]);
   const [deletingId, setDeletingId] = useState(null);
@@ -150,10 +148,6 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
-          <TemplateSelector
-            selectedTemplate={selectedTemplate}
-            setSelectedTemplate={setSelectedTemplate}
-          />
           <JobDescriptionInput
             jobDescription={jobDescription}
             setJobDescription={setJobDescription}
@@ -168,10 +162,7 @@ export default function DashboardPage() {
         </div>
         <div>
           {tailoredResume && (
-            <ResumePreview
-              tailoredResume={tailoredResume}
-              selectedTemplate={selectedTemplate}
-            />
+            <TemplateViewer resume={tailoredResume} />
           )}
         </div>
       </div>
