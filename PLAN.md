@@ -1,43 +1,27 @@
-# PDF Generation with @react-pdf/renderer
+# Plan for Integrating React PDF View
 
-## Objective
-To replace the current PDF generation mechanism with `@react-pdf/renderer` for improved flexibility and capabilities. This will involve creating new components, a new test template, and a dedicated API route for testing before full integration.
+This document outlines the plan to integrate the React PDF view from the `/test` page into the main application, and then remove the `/test` page.
 
-## Plan
+## 1. Create a new `ReactPdfView` component
 
-### 1. Install @react-pdf/renderer package
-- **Status:** Completed
-- **Description:** Install the `@react-pdf/renderer` npm package to enable React-based PDF rendering.
-- **Command:** `npm install @react-pdf/renderer`
+- **Status:** `completed`
+- **Description:** Create a new component `src/components/preview/ReactPdfView.js` that will be responsible for fetching the PDF from the `/api/render-pdf-react` endpoint and displaying it in an iframe. This was based on the existing `ReactPdfView` from the `/test` page, but was adapted to fit into the existing `ResumePreview` component.
 
-### 2. Explore existing template structure
-- **Status:** Completed
-- **Description:** Analyze the current resume template structure (e.g., `src/components/resume-templates/html-templates/`) to understand how data is passed and rendered. This will inform the design of the new `@react-pdf/renderer` compatible template.
+## 2. Integrate the new `ReactPdfView` into `ResumePreview.js`
 
-### 3. Create a new 'classic' test template using React components
-- **Status:** Completed
-- **Description:** Develop a new React component that mimics the visual style and content structure of the existing "classic" resume template, but designed to work with `@react-pdf/renderer`'s components (e.g., `<Document>`, `<Page>`, `<Text>`, `<View>`). This template will be placed in a new directory, e.g., `src/components/resume-templates/pdf-templates/ClassicTemplate.js`.
+- **Status:** `completed`
+- **Description:** Modify `src/components/preview/ResumePreview.js` to add a new view option for the React PDF view. This involved:
+    - Adding a "React PDF" button to the view switcher.
+    - Conditionally rendering the `ReactPdfView` component when the "React PDF" view is selected.
 
-### 4. Create a new PDF generation component using @react-pdf/renderer
-- **Status:** Completed
-- **Description:** Create a core component (e.g., `src/components/preview/PdfResumeRenderer.js`) that takes resume data and the chosen `@react-pdf/renderer` template component as props. This component will use `PDFViewer` or `pdf()` from `@react-pdf/renderer` to generate the PDF document.
+## 3. Remove the `/test` page
 
-### 5. Create a new API route for testing the new PDF generation component
-- **Status:** Completed
-- **Description:** Implement a new API route (e.g., `src/app/api/render-pdf-react/route.js`) that:
-    - Accepts resume data (e.g., via POST request).
-    - Calls the new `PdfResumeRenderer` component with the resume data and the new 'classic' template.
-    - Returns the generated PDF as a buffer or stream.
-    - This route will allow isolated testing of the `@react-pdf/renderer` implementation.
+- **Status:** `completed`
+- **Description:** The `/test` page is no longer needed and has been removed.
 
-### 6. Create a new /test page and display the test resume data in a separate component.
-- **Status:** Completed
-- **Description:** Create a new Next.js page at `src/app/test/page.js` that displays a PDF generated from temporary resume data using the `ReactPdfView` component.
+## Change Log
 
-## Progress Tracking
-- [X] Install @react-pdf/renderer package
-- [X] Explore existing template structure
-- [X] Create a new 'classic' test template using React components
-- [X] Create a new PDF generation component using @react-pdf/renderer
-- [X] Create a new API route for testing the new PDF generation component
-- [X] Create a new /test page and display the test resume data in a separate component.
+- **Sunday, November 16, 2025**:
+    - Created `src/components/preview/ReactPdfView.js`
+    - Modified `src/components/preview/ResumePreview.js` to include the React PDF view.
+    - Removed the `src/app/test` directory.

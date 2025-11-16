@@ -5,9 +5,10 @@ import { useState } from 'react';
 import ResumeDisplayView from './ResumeDisplayView';
 import TextView from './TextView';
 import PdfView from './PdfView';
+import ReactPdfView from './ReactPdfView';
 
 export default function ResumePreview({ tailoredResume, selectedTemplate }) {
-  const [view, setView] = useState('display'); // 'display', 'text', or 'pdf'
+  const [view, setView] = useState('display'); // 'display', 'text', 'pdf', or 'react-pdf'
   const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
@@ -74,15 +75,22 @@ export default function ResumePreview({ tailoredResume, selectedTemplate }) {
         </button>
         <button
           onClick={() => setView('pdf')}
-          className={`px-4 py-2 rounded-r-lg ${view === 'pdf' ? 'bg-blue-600' : 'bg-gray-700'}`}
+          className={`px-4 py-2 ${view === 'pdf' ? 'bg-blue-600' : 'bg-gray-700'}`}
         >
           PDF View
+        </button>
+        <button
+          onClick={() => setView('react-pdf')}
+          className={`px-4 py-2 rounded-r-lg ${view === 'react-pdf' ? 'bg-blue-600' : 'bg-gray-700'}`}
+        >
+          React PDF
         </button>
       </div>
       <div className="w-full h-96 bg-white">
         {view === 'display' && <ResumeDisplayView resumeData={tailoredResume} />}
         {view === 'text' && <TextView resumeData={tailoredResume} template={selectedTemplate} />}
         {view === 'pdf' && <PdfView resumeData={tailoredResume} template={selectedTemplate} />}
+        {view === 'react-pdf' && <ReactPdfView resumeData={tailoredResume} template={selectedTemplate} />}
       </div>
     </div>
   );
