@@ -6,6 +6,7 @@
 //   View,
 //   StyleSheet,
 //   Font,
+//   Link,
 // } from "@react-pdf/renderer";
 
 // // NOTE: React-PDF does not ship with the system Arial font by default in all environments.
@@ -13,33 +14,30 @@
 // // For visual parity this file uses "Helvetica" as the closest built-in match and sets sizes so the layout
 // // matches the provided HTML (margins, gaps, headings, and month-year date formatting).
 
-// // If you want me to register a specific TTF/OTF file (e.g. Arial.ttf) include the file and I will update the component.
-
 // const styles = StyleSheet.create({
-//   // page matches: @page { margin-top: 20px } and body { margin: 20px 50px }
 //   page: {
-//     // fontFamily: "Helvetica",
-//     paddingTop: 29, // matches @page margin-top: 20px
+//     paddingTop: 29,
 //     paddingBottom: 20,
 //     paddingLeft: 35,
 //     paddingRight: 35,
-//     color: "#000",
-//     // React-PDF uses points. HTML px -> pt multiplier: 0.75
-//     // We choose exact converted values so the visual sizes, gaps and flow match the HTML.
-//     fontSize: 9, // base 12px -> 9pt
+//     // color: "#000",
+//     fontSize: 9,
 //   },
 
 //   h1: {
-//     // HTML: 22px -> 22 * 0.75 = 16.5pt
 //     fontSize: 16.5,
 //     fontWeight: 700,
 //     margin: 0,
 //   },
 
 //   contact: {
-//     // HTML: 11.5px -> 8.625pt
 //     fontSize: 8.625,
 //     marginTop: 5,
+//   },
+
+//   link: {
+//     color: "blue",
+//     textDecoration: "underline",
 //   },
 
 //   section: {
@@ -47,7 +45,6 @@
 //   },
 
 //   h2: {
-//     // HTML: 14px -> 10.5pt
 //     fontSize: 11,
 //     fontWeight: 700,
 //     textTransform: "uppercase",
@@ -59,13 +56,11 @@
 //   },
 
 //   paragraph: {
-//     // HTML: 12px -> 9pt
 //     fontSize: 9,
 //     lineHeight: 1.5,
 //   },
 
 //   position: {
-//     // HTML: 12.5px -> 9.375pt
 //     fontSize: 9.375,
 //     fontWeight: 700,
 //   },
@@ -78,25 +73,22 @@
 //   },
 
 //   date: {
-//     // HTML: 10px -> 7.5pt
 //     fontSize: 7.5,
 //   },
 
 //   ul: {
-//     // HTML ul margins: margin: 5px 0 10px 20px;
 //     marginTop: 5,
 //     marginBottom: 10,
 //     paddingLeft: 20,
 //   },
 
 //   li: {
-//     marginBottom: 5,
+//     marginBottom: 3,
 //     fontSize: 9,
 //     lineHeight: 1.5,
 //   },
 
 //   skillsText: {
-//     // .skills font-size 12px -> 9pt
 //     fontSize: 9,
 //     marginTop: 5,
 //   },
@@ -115,11 +107,10 @@
 //   },
 // });
 
-// // Format "YYYY-MM-DD" or "YYYY-MM" or "YYYY" -> "Mon YYYY" (e.g. "Jan 2023").
+// // Format date
 // function formatDate(dateStr) {
 //   if (!dateStr) return "";
 //   try {
-//     // Accept strings like "2024-04-15", "2024-04" or "2024"
 //     const parts = String(dateStr).trim().split("-");
 //     const year = parts[0];
 //     const month = parts[1] ? parseInt(parts[1], 10) : null;
@@ -163,7 +154,6 @@
 //     ? resumeData.education
 //     : [];
 
-//   // Support both [{ skill_name }] and simple string-array formats
 //   const skillsArr = Array.isArray(resumeData.skills)
 //     ? resumeData.skills
 //     : resumeData.skills && Array.isArray(resumeData.skills.list_of_skills)
@@ -196,11 +186,27 @@
 //         {/* Header */}
 //         <View>
 //           <Text style={styles.h1}>{profile.full_name || ""}</Text>
-//           <Text style={styles.contact}>
-//             {[profile.email, profile.phone, profile.location, profile.website]
-//               .filter(Boolean)
-//               .join(" | ")}
-//           </Text>
+
+//           {/* Contact info with blue website link */}
+//           <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+//             <Text style={styles.contact}>
+//               {[profile.email, profile.phone, profile.location]
+//                 .filter(Boolean)
+//                 .join(" | ")}
+//             </Text>
+
+//             {profile.website && (
+//               <>
+//                 <Text style={styles.contact}> | </Text>
+//                 <Link
+//                   src={profile.website}
+//                   style={[styles.contact, styles.link]}
+//                 >
+//                   {profile.website}
+//                 </Link>
+//               </>
+//             )}
+//           </View>
 //         </View>
 
 //         {/* Summary */}
@@ -225,7 +231,6 @@
 //               exp.end === "";
 //             const duration =
 //               joinDateRange(start, end, isCurrent) || exp.duration || "";
-
 //             const responsibilities =
 //               Array.isArray(exp.responsibilities) &&
 //               exp.responsibilities.length > 0
@@ -237,7 +242,7 @@
 //                 : [];
 
 //             return (
-//               <View key={idx} style={styles.smallGap}>
+//               <View key={idx}>
 //                 <View style={styles.companyDate}>
 //                   <Text style={styles.position}>
 //                     {title}
@@ -337,6 +342,22 @@
 //     </Document>
 //   );
 // }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 import React from "react";
 import {
   Document,
@@ -359,7 +380,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingLeft: 35,
     paddingRight: 35,
-    color: "#000",
+    // color: "#000",
     fontSize: 9,
   },
 
@@ -418,11 +439,11 @@ const styles = StyleSheet.create({
   ul: {
     marginTop: 5,
     marginBottom: 10,
-    paddingLeft: 20,
+    paddingLeft: 20, // indent the whole list inward
   },
 
   li: {
-    marginBottom: 5,
+    marginBottom: 3,
     fontSize: 9,
     lineHeight: 1.5,
   },
@@ -443,6 +464,23 @@ const styles = StyleSheet.create({
   additionalList: {
     marginTop: 5,
     fontSize: 9,
+  },
+
+  // bullet column - you can tweak width here to move bullet closer/further from text
+  bulletColumn: {
+    width: 8,
+  },
+
+  bulletText: {
+    // ensure bullet vertically aligns nicely
+    fontSize: 9,
+    lineHeight: 1.5,
+  },
+
+  bulletContent: {
+    flex: 1,
+    fontSize: 9,
+    lineHeight: 1.5,
   },
 });
 
@@ -592,10 +630,20 @@ export default function ClassicTemplate({ resumeData = {} }) {
 
                 {responsibilities.length > 0 && (
                   <View style={styles.ul}>
+                    {/*
+                      Render each list item as a two-column row: narrow bullet column and a flexing content column.
+                      This ensures wrapped lines align with the start of the text (hanging indent).
+                    */}
                     {responsibilities.map((r, i) => (
-                      <Text key={i} style={styles.li}>
-                        {"\u2022"} {r}
-                      </Text>
+                      <View
+                        key={i}
+                        style={{ flexDirection: "row", marginBottom: 3 }}
+                      >
+                        <View style={styles.bulletColumn}>
+                          <Text style={styles.bulletText}>{"\u2022"}</Text>
+                        </View>
+                        <Text style={styles.bulletContent}>{r}</Text>
+                      </View>
                     ))}
                   </View>
                 )}
