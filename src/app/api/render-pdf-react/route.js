@@ -1,26 +1,38 @@
-import { NextResponse } from 'next/server';
-import PdfResumeRenderer from '@/components/preview/PdfResumeRenderer';
-import ClassicTemplate from '@/components/resume-templates/pdf-templates/ClassicTemplate';
+import { NextResponse } from "next/server";
+import { pdf } from "@react-pdf/renderer";
+import PdfResumeRenderer from "@/components/preview/PdfResumeRenderer";
+import ClassicTemplate from "@/components/resume-templates/pdf-templates/ClassicTemplate.js";
 
 export async function POST(request) {
   try {
-    const { resumeData } = await request.json();
+    const { resumeData, template } = await request.json();
 
-    // Basic validation
-    if (!resumeData) {
-      return NextResponse.json({ error: 'Resume data is required' }, { status: 400 });
+    if (!resumeData || !template) {
+      return new NextResponse("Missing resumeData or template", {
+        status: 400,
+      });
     }
 
-    const pdfBuffer = await PdfResumeRenderer({ resumeData, Template: ClassicTemplate });
+    // TODO: This is a temporary fix. The template should be dynamically imported based on the 'template' variable.
+    // const TemplateComponent = (await import(`@/components/resume-templates/pdf-templates/${template}`)).default;
 
-    return new NextResponse(pdfBuffer, {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="resume.pdf"',
-      },
-    });
+    const TemplateComponent = ClassicTemplate;
+
+    const doc = (
+      <PdfResumeRenderer resumeData={resumeData} Template={TemplateComponent} />
+    );
+    const blob = await pdf(doc).toBlob();
+
+    const headers = new Headers();
+    headers.set("Content-Type", "application/pdf");
+    headers.set(
+      "Content-Disposition",
+      'attachment; filename="resume-react.pdf"'
+    );
+
+    return new NextResponse(blob, { headers });
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+    console.error("Error generating React PDF:", error);
+    return new NextResponse("Error generating PDF", { status: 500 });
   }
 }
