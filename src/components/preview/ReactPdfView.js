@@ -83,7 +83,7 @@ export default function ReactPdfView({ resumeData, template }) {
       )}
       {pdfUrl && !loading && (
         <>
-          <div className="pdf-controls bg-gray-100 p-2 flex justify-center items-center space-x-4">
+          <div className="pdf-controls bg-gray-500 p-2 flex justify-center items-center space-x-4">
             <button onClick={zoomOut} className="p-1 bg-gray-300 rounded">
               <MagnifyingGlassMinusIcon className="h-5 w-5" />
             </button>
@@ -119,7 +119,10 @@ export default function ReactPdfView({ resumeData, template }) {
               {Array.from(new Array(numPages), (el, index) => (
                 <div
                   key={`page_${index + 1}`}
-                  style={{ marginBottom: 12, borderBottom: "1px solid black" }}
+                  style={{
+                    marginBottom: 12,
+                    borderBottom: "1px solid black",
+                  }}
                 >
                   <Page
                     pageNumber={index + 1}

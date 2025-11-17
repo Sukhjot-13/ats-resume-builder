@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { pdf } from "@react-pdf/renderer";
 import PdfResumeRenderer from "@/components/preview/PdfResumeRenderer";
-import ClassicTemplate from "@/components/resume-templates/pdf-templates/ClassicTemplate.js";
 
 export async function POST(request) {
   try {
@@ -13,10 +12,9 @@ export async function POST(request) {
       });
     }
 
-    // TODO: This is a temporary fix. The template should be dynamically imported based on the 'template' variable.
-    // const TemplateComponent = (await import(`@/components/resume-templates/pdf-templates/${template}`)).default;
-
-    const TemplateComponent = ClassicTemplate;
+    const TemplateComponent = (
+      await import(`@/components/resume-templates/pdf-templates/${template}`)
+    ).default;
 
     const doc = (
       <PdfResumeRenderer resumeData={resumeData} Template={TemplateComponent} />
