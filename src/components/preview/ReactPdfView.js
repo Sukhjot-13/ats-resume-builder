@@ -68,7 +68,14 @@ export default function ReactPdfView({ resumeData, template }) {
   }
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       {loading && (
         <div className="flex justify-center items-center h-full">
           Loading PDF…
@@ -84,19 +91,36 @@ export default function ReactPdfView({ resumeData, template }) {
             <button onClick={zoomIn} className="p-1 bg-gray-300 rounded">
               <MagnifyingGlassPlusIcon className="h-5 w-5" />
             </button>
-            <a href={pdfUrl} download="resume.pdf" className="p-1 bg-blue-500 text-white rounded">
+            <a
+              href={pdfUrl}
+              download="resume.pdf"
+              className="p-1 bg-blue-500 text-white rounded"
+            >
               <ArrowDownTrayIcon className="h-5 w-5" />
             </a>
           </div>
-          <div style={{ flex: 1, overflow: "auto", display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div
+            style={{
+              flex: 1,
+              overflow: "auto",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <Document
               file={pdfUrl}
               onLoadSuccess={onLoadSuccess}
               loading={<div>Loading PDF document...</div>}
-              onLoadError={(error) => console.error("Error loading PDF:", error)}
+              onLoadError={(error) =>
+                console.error("Error loading PDF:", error)
+              }
             >
               {Array.from(new Array(numPages), (el, index) => (
-                <div key={`page_${index + 1}`} style={{ marginBottom: 12, borderBottom: '1px solid black' }}>
+                <div
+                  key={`page_${index + 1}`}
+                  style={{ marginBottom: 12, borderBottom: "1px solid black" }}
+                >
                   <Page
                     pageNumber={index + 1}
                     scale={scale}

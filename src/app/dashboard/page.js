@@ -161,9 +161,7 @@ export default function DashboardPage() {
           />
         </div>
         <div>
-          {tailoredResume && (
-            <TemplateViewer resume={tailoredResume} />
-          )}
+          {tailoredResume && <TemplateViewer resume={tailoredResume} />}
         </div>
       </div>
 

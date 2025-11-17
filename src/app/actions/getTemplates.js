@@ -5,12 +5,12 @@ import path from 'path';
 
 export async function getTemplates() {
   try {
-    const templatesDirectory = path.join(process.cwd(), 'src/components/resume-templates/html-templates');
+    const templatesDirectory = path.join(process.cwd(), 'src/components/resume-templates/pdf-templates');
     const filenames = await fs.readdir(templatesDirectory);
     const templates = filenames
-      .filter(filename => filename.endsWith('.html'))
+      .filter(filename => filename.endsWith('.js'))
       .map(filename => ({
-        name: filename.replace('.html', ''),
+        name: filename.replace('.js', ''),
         path: filename,
       }));
     return templates;

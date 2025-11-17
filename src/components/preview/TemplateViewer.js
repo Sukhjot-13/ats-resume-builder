@@ -5,7 +5,8 @@ import ResumePreview from "@/components/preview/ResumePreview";
 import TemplateSelector from "@/components/home/TemplateSelector";
 
 export default function TemplateViewer({ resume }) {
-  const [selectedTemplate, setSelectedTemplate] = useState("Classic.html");
+  const [selectedTemplate, setSelectedTemplate] =
+    useState("ClassicTemplate.js");
 
   return (
     <div>
