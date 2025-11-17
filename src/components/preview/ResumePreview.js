@@ -4,8 +4,13 @@ import { useState } from "react";
 import ResumeDisplayView from "./ResumeDisplayView";
 import TextView from "./TextView";
 import PdfView from "./PdfView";
-import ReactPdfView from "./ReactPdfView";
+import dynamic from "next/dynamic";
 import DownloadReactPdfButton from "./DownloadReactPdfButton";
+
+const ReactPdfView = dynamic(() => import("./ReactPdfView"), {
+  ssr: false,
+  loading: () => <p>Loading PDF viewer...</p>,
+});
 
 export default function ResumePreview({ tailoredResume, selectedTemplate }) {
   const [view, setView] = useState("display"); // 'display', 'text', 'pdf', or 'react-pdf'
