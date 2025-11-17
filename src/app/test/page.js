@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useApiClient } from "@/hooks/useApiClient";
-import PdfView from "@/components/preview/PdfView";
 
 const ReactPdfView = dynamic(
   () => import("@/components/preview/ReactPdfView"),
@@ -65,14 +64,6 @@ export default function TestPage() {
         PDF View Comparison
       </h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[80vh]">
-        <div>
-          <h2 className="text-2xl font-semibold mb-4 text-center">
-            Puppeteer PDF View
-          </h2>
-          <div className="w-full h-full bg-white">
-            <PdfView resumeData={resumeData} template="Classic.html" />
-          </div>
-        </div>
         <div>
           <h2 className="text-2xl font-semibold mb-4 text-center">
             React-PDF View

@@ -100,7 +100,6 @@ The project follows a standard Next.js file structure.
 - `preview-pdf/route.js`: Generates a PDF preview of a resume.
 - `profile/route.js`: Handles reading from and writing to the `data.json` file.
 - `render-pdf/route.js`: Renders a resume to a downloadable PDF file.
-- `render-test-html/route.js`: Renders a test HTML version of a resume, using `data.json`.
 - `resumes/route.js`: Handles getting all resumes for a user and creating a new resume.
 - `resumes/[id]/route.js`: Handles getting and deleting a specific resume.
 - `user/profile/route.js`: Handles getting and updating a user's profile data.
@@ -111,7 +110,6 @@ The project follows a standard Next.js file structure.
 - `home/JobDescription.js`, `home/JobDescriptionInput.js`: Components for inputting a job description.
 - `home/SpecialInstructionsInput.js`: A component for inputting special instructions for the AI.
 - `home/TemplateSelector.js`: A dropdown to select a resume template. It dynamically loads the available templates using a server action.
-- `preview/PdfView.js`: Displays a PDF preview of a resume.
 - `preview/ResumeDisplayView.js`: Displays a structured view of the resume data.
 - `preview/ResumePreview.js`: A tabbed view for previewing the resume in different formats.
 - `preview/TextView.js`: Displays a text/HTML view of the resume.
@@ -145,7 +143,6 @@ The project follows a standard Next.js file structure.
 - `aiResumeEditorService.js`: Service for editing a resume using AI.
 - `contentGenerationService.js`: Service for generating tailored resume content.
 - `geminiService.js`: A centralized service for interacting with the Google Gemini API. It handles the initialization of the Gemini client.
-- `pdfRenderService.js`: Service for rendering a resume to a PDF.
 - `resumeParsingService.js`: Service for parsing resume files.
 
 ## Known Issues and Areas for Improvement
