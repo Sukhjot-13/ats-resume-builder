@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useApiClient } from "@/hooks/useApiClient";
 import PdfView from "@/components/preview/PdfView";
-import ReactPdfView from "@/components/preview/ReactPdfView";
+
+const ReactPdfView = dynamic(
+  () => import("@/components/preview/ReactPdfView"),
+  {
+    ssr: false,
+  }
+);
 
 export default function TestPage() {
   const [resumeData, setResumeData] = useState(null);
